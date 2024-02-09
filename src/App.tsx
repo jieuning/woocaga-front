@@ -1,11 +1,13 @@
 import './style/App.css';
+import { Header } from './components/Header';
+import { Map } from './components/Map';
 
 function App() {
-
   return (
-    <>
-      <h1 className='text-red-400'>Hello world</h1>
-    </>
+    <div className="font-spoqa bg-ivory h-screen">
+      <Header />
+      <Map />
+    </div>
   );
 }
 
