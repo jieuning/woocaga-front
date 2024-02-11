@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { CafeData, Coordinate } from '../types/cafes';
+
+// 이미지
 import coffeeIcon from '../assets/coffee_icon.png';
 import desertIcon from '../assets/desert_icon.png';
+import coffeeMarker from '../assets/coffee_marker.png';
+import desertMarker from '../assets/desert_marker.png';
 
 interface MapProps {
   data?: CafeData;
@@ -13,6 +17,7 @@ export const Map = ({ data }: MapProps) => {
   const desertPositions: Coordinate[] = [];
 
   // 위도, 경도 데이터만 분리
+  // 커피, 디저트 따로
   data?.cafes.forEach((cafe) => {
     if (cafe.category === '커피') {
       cafe.qa?.forEach((coordinate) => {
@@ -57,26 +62,43 @@ export const Map = ({ data }: MapProps) => {
 
         const map = new kakao.maps.Map(container, options);
 
+        const imageSrc =
+          activeCategory !== '디저트' ? coffeeMarker : desertMarker;
+        const imageSize = new kakao.maps.Size(32);
+        const imageOption = { offset: new kakao.maps.Point(27, 69) };
+
         // 마커 추가
         if (activeCategory !== '디저트') {
           coffeePositions?.forEach((position) => {
+            const markerImage = new kakao.maps.MarkerImage(
+              imageSrc,
+              imageSize,
+              imageOption
+            );
             const markerPosition = new kakao.maps.LatLng(
               position.Ma,
               position.La
             );
             const marker = new kakao.maps.Marker({
               position: markerPosition,
+              image: markerImage,
             });
             marker.setMap(map);
           });
         } else {
           desertPositions?.forEach((position) => {
+            const markerImage = new kakao.maps.MarkerImage(
+              imageSrc,
+              imageSize,
+              imageOption
+            );
             const markerPosition = new kakao.maps.LatLng(
               position.Ma,
               position.La
             );
             const marker = new kakao.maps.Marker({
               position: markerPosition,
+              image: markerImage,
             });
             marker.setMap(map);
           });
@@ -87,14 +109,14 @@ export const Map = ({ data }: MapProps) => {
     return () => {
       document.head.removeChild(script);
     };
-  }, []);
+  }, [activeCategory]);
 
   return (
     <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
       <div>
         <ul className="flex gap-2.5">
           <li
-            className={`rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center ${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} hover:bg-primary transition-all cursor-pointer`}
+            className={`${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
             onClick={() => clickHandleCategory('커피류')}
           >
             <img
@@ -106,7 +128,7 @@ export const Map = ({ data }: MapProps) => {
             커피류
           </li>
           <li
-            className={`rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center ${activeCategory === '디저트' ? 'bg-primary' : 'bg-lightbrown'} hover:bg-primary transition-all cursor-pointer`}
+            className={`${activeCategory === '디저트' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
             onClick={() => clickHandleCategory('디저트')}
           >
             <img
