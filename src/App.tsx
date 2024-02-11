@@ -1,14 +1,20 @@
 import './style/App.css';
 import { Header } from './components/Header';
 import { Map } from './components/Map';
+import { CafeData } from './types/cafes';
+import dummyData from './dummy/data.json';
 
-function App() {
+const App = () => {
+  const cafeData: CafeData = {
+    cafes: dummyData.cafes,
+  };
+
   return (
     <div className="font-spoqa bg-ivory h-screen">
       <Header />
-      <Map />
+      <Map data={cafeData} />
     </div>
   );
-}
+};
 
 export default App;
