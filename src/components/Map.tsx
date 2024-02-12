@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
-import { CafeData, Coordinate } from '../types/cafes';
-
+import { Coordinate, CafeInfo } from '../types/cafes';
 // 이미지
-import coffeeIcon from '../assets/coffee_icon.png';
-import desertIcon from '../assets/desert_icon.png';
 import coffeeMarker from '../assets/coffee_marker.png';
 import desertMarker from '../assets/desert_marker.png';
+// 컴포넌트
+import { Category } from './Category';
+// 리덕스
+import { useSelector, useDispatch } from 'react-redux';
+import { addMarker } from '../store/cafeSlice';
 
-interface MapProps {
-  data?: CafeData;
-}
+export const Map = () => {
+  const data = useSelector((state: { cafes: CafeInfo[] }) => state);
+  const dispatch = useDispatch();
 
-export const Map = ({ data }: MapProps) => {
+  console.log(data);
+
   // 위도, 경도 데이터
   const coffeePositions: Coordinate[] = [];
   const desertPositions: Coordinate[] = [];
 
   // 위도, 경도 데이터만 분리
   // 커피, 디저트 따로
-  data?.cafes.forEach((cafe) => {
+  data?.cafes?.forEach((cafe) => {
     if (cafe.category === '커피') {
       cafe.qa?.forEach((coordinate) => {
         coffeePositions.push({
@@ -37,10 +40,6 @@ export const Map = ({ data }: MapProps) => {
   });
 
   const [activeCategory, setActiveCategory] = useState<string>('커피류');
-
-  const clickHandleCategory = (categoryName: string) => {
-    setActiveCategory(categoryName);
-  };
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -62,19 +61,20 @@ export const Map = ({ data }: MapProps) => {
 
         const map = new kakao.maps.Map(container, options);
 
+        // 마커 이미지 커스텀
         const imageSrc =
           activeCategory !== '디저트' ? coffeeMarker : desertMarker;
         const imageSize = new kakao.maps.Size(32);
         const imageOption = { offset: new kakao.maps.Point(27, 69) };
+        const markerImage = new kakao.maps.MarkerImage(
+          imageSrc,
+          imageSize,
+          imageOption
+        );
 
-        // 마커 추가
+        // 해당 카테고리에 마커 추가
         if (activeCategory !== '디저트') {
           coffeePositions?.forEach((position) => {
-            const markerImage = new kakao.maps.MarkerImage(
-              imageSrc,
-              imageSize,
-              imageOption
-            );
             const markerPosition = new kakao.maps.LatLng(
               position.Ma,
               position.La
@@ -84,14 +84,14 @@ export const Map = ({ data }: MapProps) => {
               image: markerImage,
             });
             marker.setMap(map);
+
+            // 마커 클릭시 삭제 이벤트
+            kakao.maps.event.addListener(marker, 'click', () => {
+              deleteMarker(marker);
+            });
           });
         } else {
           desertPositions?.forEach((position) => {
-            const markerImage = new kakao.maps.MarkerImage(
-              imageSrc,
-              imageSize,
-              imageOption
-            );
             const markerPosition = new kakao.maps.LatLng(
               position.Ma,
               position.La
@@ -101,8 +101,48 @@ export const Map = ({ data }: MapProps) => {
               image: markerImage,
             });
             marker.setMap(map);
+
+            // 마커 클릭시 삭제 이벤트
+            kakao.maps.event.addListener(marker, 'click', () => {
+              deleteMarker(marker);
+            });
           });
         }
+
+        // 클릭 이벤트 핸들러 추가
+        kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
+          const latlng = mouseEvent.latLng;
+
+          // state에 추가할 obj
+          const position = {
+            category: activeCategory !== '디저트' ? '커피' : '디저트',
+            qa: [
+              {
+                Ma: latlng.getLat(),
+                La: latlng.getLng(),
+              },
+            ],
+          };
+
+          // state에 새로 생성된 마커 데이터 추가
+          dispatch(addMarker(position));
+
+          const marker = new kakao.maps.Marker({
+            position: latlng,
+            image: markerImage,
+          });
+          marker.setMap(map);
+
+          // 마커 클릭시 삭제 이벤트
+          kakao.maps.event.addListener(marker, 'click', () => {
+            deleteMarker(marker);
+          });
+        });
+
+        // 마커 삭제 함수
+        const deleteMarker = (markerToDelete: kakao.maps.Marker) => {
+          markerToDelete.setMap(null);
+        };
       });
     };
 
@@ -113,34 +153,10 @@ export const Map = ({ data }: MapProps) => {
 
   return (
     <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
-      <div>
-        <ul className="flex gap-2.5">
-          <li
-            className={`${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
-            onClick={() => clickHandleCategory('커피류')}
-          >
-            <img
-              src={coffeeIcon}
-              width="32"
-              alt="커피 맛집"
-              className="pb-1.5"
-            />
-            커피류
-          </li>
-          <li
-            className={`${activeCategory === '디저트' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
-            onClick={() => clickHandleCategory('디저트')}
-          >
-            <img
-              src={desertIcon}
-              width="32"
-              alt="디저트 맛집"
-              className="pb-1.5"
-            />
-            디저트
-          </li>
-        </ul>
-      </div>
+      <Category
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+      />
       <div
         id="map"
         style={{ width: '100%', height: '480px', borderRadius: '10px' }}
