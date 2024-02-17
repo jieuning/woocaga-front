@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CafeData, CafeInfo } from '../types/cafes';
+import axios from 'axios';
 
 // 더미데이터
 import dummyData from '../dummy/data.json';
@@ -7,6 +8,8 @@ import dummyData from '../dummy/data.json';
 const cafeData: CafeData = {
   cafes: dummyData.cafes,
 };
+
+const markerData = async () => {};
 
 const cafeSlice = createSlice({
   name: 'cafes',

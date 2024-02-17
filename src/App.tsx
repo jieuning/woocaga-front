@@ -1,5 +1,4 @@
 import './style/App.css';
-import { CafeData } from './types/cafes';
 
 // 컴포넌트
 import { Header } from './components/Header';
