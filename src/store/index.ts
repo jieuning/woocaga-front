@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import cafeReducer from './cafeSlice';
+import markerReducer from './markerSlice';
 
 const store = configureStore({
   reducer: {
-    cafes: cafeReducer,
+    markers: markerReducer,
   },
   devTools: true,
 });

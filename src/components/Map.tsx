@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Coordinate, CafeInfo } from '../types/cafes';
+import { MarkerInfo, initialType } from '../types/markers';
 // 이미지
 import coffeeMarker from '../assets/coffee_marker.png';
 import dessertMarker from '../assets/dessert_marker.png';
 // 컴포넌트
 import { Category } from './Category';
+import {
+  coffeeCoordinates,
+  dessertCoordinates,
+} from '../utils/PositionByCategory';
+import { addingMarkersToAMap } from '../utils/AddingMakersToAMap';
 // 리덕스
-import { useSelector, useDispatch } from 'react-redux';
-import { addMarker } from '../store/cafeSlice';
+import { useDispatch } from 'react-redux';
+import { addMarker } from '../store/markerSlice';
+
+import axios from 'axios';
 
 declare global {
   interface Window {
@@ -15,9 +22,13 @@ declare global {
   }
 }
 
-export const Map = () => {
-  const data = useSelector((state: { cafes: CafeInfo[] }) => state);
+interface MapProps {
+  data: initialType;
+}
+
+export const Map = ({ data }: MapProps) => {
   const dispatch = useDispatch();
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
 
   const [activeCategory, setActiveCategory] = useState<string>('커피류');
 
@@ -25,8 +36,9 @@ export const Map = () => {
     loadKakaoMap();
   }, [activeCategory]);
 
-  const loadKakaoMap = async () => {
+  const loadKakaoMap = () => {
     const kakao: any = window['kakao'];
+
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
@@ -49,11 +61,15 @@ export const Map = () => {
         imageOption
       );
 
+      // 카테고리별 위도, 경도 데이터
+      const coffeePositions = coffeeCoordinates(data);
+      const dessertPositions = dessertCoordinates(data);
+
       // 해당 카테고리에 마커 추가
       if (activeCategory !== '디저트') {
-        addMarkers(coffeePositions, map, markerImage);
+        addingMarkersToAMap(coffeePositions, map, markerImage);
       } else {
-        addMarkers(desertPositions, map, markerImage);
+        addingMarkersToAMap(dessertPositions, map, markerImage);
       }
 
       // 클릭 이벤트 핸들러
@@ -63,11 +79,11 @@ export const Map = () => {
         geocoder.coord2Address(
           latlng.getLng(),
           latlng.getLat(),
-          (result: any, status: any) => {
+          ({ result, status }: any) => {
             if (status === kakao.maps.services.Status.OK) {
               // state에 추가할 obj
-              const position = {
-                address: result[0].road_address.address_name,
+              const newMarker: MarkerInfo = {
+                address: result[0].address.address_name,
                 category: activeCategory !== '디저트' ? '커피류' : '디저트',
                 coordinates: [
                   {
@@ -77,61 +93,41 @@ export const Map = () => {
                 ],
               };
 
-              // state에 새로 생성된 마커 데이터 추가
-              dispatch(addMarker(position));
+              if (newMarker) {
+                // db에 저장
+                axios
+                  .post(`${URL}/add`, JSON.stringify(newMarker), {
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  })
+                  .then((response) => {
+                    const data = response.data.newMarker;
+                    // state에 마커 추가
+                    dispatch(addMarker(data));
+                  })
+                  .catch((error) => {
+                    return alert('마커 추가 중 에러가 발생했습니다');
+                  });
 
-              const marker = new kakao.maps.Marker({
-                position: latlng,
-                image: markerImage,
-              });
-              marker.setMap(map);
-              // 마커 드래그
-              marker.setDraggable(true);
+                // 마커 생성
+                const marker = new kakao.maps.Marker({
+                  position: latlng,
+                  image: markerImage,
+                });
+
+                // 렌더링
+                marker.setMap(map);
+                // 마커 드래그
+                marker.setDraggable(true);
+              }
             } else {
-              alert('일치하는 주소가 존재하지 않습니다.');
+              return alert('일치하는 주소가 존재하지 않습니다.');
             }
           }
         );
       });
     }
-  };
-
-  // 위도, 경도 데이터
-  const coffeePositions: Coordinate[] = [];
-  const desertPositions: Coordinate[] = [];
-
-  // 위도, 경도 데이터만 분리
-  // 커피, 디저트 따로
-  data?.cafes?.forEach((cafe) => {
-    if (cafe.category === '커피류') {
-      cafe.qa?.forEach((coordinate) => {
-        coffeePositions.push({
-          Ma: coordinate.Ma,
-          La: coordinate.La,
-        });
-      });
-    } else if (cafe.category === '디저트') {
-      cafe.qa?.forEach((coordinate) => {
-        desertPositions.push({
-          Ma: coordinate.Ma,
-          La: coordinate.La,
-        });
-      });
-    }
-  });
-
-  // 마커를 추가하는 함수
-  const addMarkers = (positions: Coordinate[], map: any, markerImage: any) => {
-    positions.forEach((position) => {
-      const markerPosition = new kakao.maps.LatLng(position.Ma, position.La);
-      const marker = new kakao.maps.Marker({
-        position: markerPosition,
-        image: markerImage,
-      });
-      marker.setMap(map);
-      // 마커가 드래그 가능하도록 설정
-      marker.setDraggable(true);
-    });
   };
 
   return (
