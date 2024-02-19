@@ -38,7 +38,7 @@ const markerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // GET 요청의 로딩, 성공, 실패 처리
+      // GET 요청의 로딩, 성공 처리
       .addCase(getMarker.pending, (state, action) => {
         state.status = 'loading';
       })

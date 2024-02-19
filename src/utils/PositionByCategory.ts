@@ -1,15 +1,15 @@
-import { initialType, Coordinates } from '../types/markers';
+import { Coordinates, MarkerInfo } from '../types/markers';
 
-export const coffeeCoordinates = (data: initialType) => {
+export const coffeeCoordinates = (data: MarkerInfo[]) => {
   const coffee: Coordinates[] = [];
 
   // 카테고리가 커피인 위도, 경도
-  data?.markerData?.forEach((marker) => {
+  data?.forEach((marker) => {
     if (marker.category === '커피류') {
-      marker.coordinates?.forEach((coordinate) => {
+      marker.coordinates?.forEach((coordinates) => {
         coffee.push({
-          latitude: coordinate.latitude,
-          longitude: coordinate.longitude,
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
         });
       });
     }
@@ -18,16 +18,16 @@ export const coffeeCoordinates = (data: initialType) => {
   return coffee;
 };
 
-export const dessertCoordinates = (data: initialType) => {
+export const dessertCoordinates = (data: MarkerInfo[]) => {
   const dessert: Coordinates[] = [];
 
   // 카테고리가 디저트인 위도, 경도
-  data?.markerData?.forEach((marker) => {
-    if (marker.category === '디저트') {
-      marker.coordinates?.forEach((coordinate) => {
+  data?.forEach((marker) => {
+    if (marker.category === '커피류') {
+      marker.coordinates?.forEach((coordinates) => {
         dessert.push({
-          latitude: coordinate.latitude,
-          longitude: coordinate.longitude,
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
         });
       });
     }

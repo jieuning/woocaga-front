@@ -5,7 +5,7 @@ interface Coordinates {
 
 interface MarkerInfo {
   id?: number;
-  name?: string;
+  name?: string | null;
   address?: string;
   category?: string;
   coordinates?: Coordinates[];

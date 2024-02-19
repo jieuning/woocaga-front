@@ -11,7 +11,7 @@ import {
 } from '../utils/PositionByCategory';
 import { addingMarkersToAMap } from '../utils/AddingMakersToAMap';
 // 리덕스
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addMarker } from '../store/markerSlice';
 
 import axios from 'axios';
@@ -22,15 +22,26 @@ declare global {
   }
 }
 
-interface MapProps {
-  data: initialType;
-}
-
-export const Map = ({ data }: MapProps) => {
+export const Map = () => {
+  const data = useSelector((state: { markers: initialType }) => state.markers);
   const dispatch = useDispatch();
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
 
   const [activeCategory, setActiveCategory] = useState<string>('커피류');
+
+  // 로컬 스토리지에서 초기 데이터 가져오기
+  const storedMarkers = localStorage.getItem('markers');
+  const [localMarkers, setLocalMarkers] = useState<MarkerInfo[]>(
+    storedMarkers ? JSON.parse(storedMarkers) : data.markerData
+  );
+
+  useEffect(() => {
+    // 데이터가 변경될 때마다 로컬 스토리지 업데이트
+    if (data.markerData) {
+      localStorage.setItem('markers', JSON.stringify(data.markerData));
+      setLocalMarkers(data.markerData);
+    }
+  }, [data.markerData]);
 
   useEffect(() => {
     loadKakaoMap();
@@ -62,8 +73,8 @@ export const Map = ({ data }: MapProps) => {
       );
 
       // 카테고리별 위도, 경도 데이터
-      const coffeePositions = coffeeCoordinates(data);
-      const dessertPositions = dessertCoordinates(data);
+      const coffeePositions = coffeeCoordinates(localMarkers);
+      const dessertPositions = dessertCoordinates(localMarkers);
 
       // 해당 카테고리에 마커 추가
       if (activeCategory !== '디저트') {
@@ -75,11 +86,12 @@ export const Map = ({ data }: MapProps) => {
       // 클릭 이벤트 핸들러
       kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
         const latlng = mouseEvent.latLng;
-        // 위도, 경도로 주소 변환
+
+        // 위도, 경도 -> 주소로 변환
         geocoder.coord2Address(
           latlng.getLng(),
           latlng.getLat(),
-          ({ result, status }: any) => {
+          (result: any, status: any) => {
             if (status === kakao.maps.services.Status.OK) {
               // state에 추가할 obj
               const newMarker: MarkerInfo = {
@@ -107,7 +119,7 @@ export const Map = ({ data }: MapProps) => {
                     dispatch(addMarker(data));
                   })
                   .catch((error) => {
-                    return alert('마커 추가 중 에러가 발생했습니다');
+                    alert('이미 추가된 마커입니다.');
                   });
 
                 // 마커 생성
@@ -122,7 +134,7 @@ export const Map = ({ data }: MapProps) => {
                 marker.setDraggable(true);
               }
             } else {
-              return alert('일치하는 주소가 존재하지 않습니다.');
+              alert('일치하는 주소가 존재하지 않습니다.');
             }
           }
         );
