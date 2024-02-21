@@ -15,7 +15,5 @@ export const addingMarkersToAMap = (
       image: markerImage,
     });
     marker.setMap(map);
-    // 마커가 드래그 가능하도록 설정
-    marker.setDraggable(true);
   });
 };

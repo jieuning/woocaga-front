@@ -1,33 +1,38 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { MarkerData, MarkerInfo, initialType } from '../types/markers';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { MarkerData, initialType } from '../types/markers';
 import axios from 'axios';
 import { produce, Draft } from 'immer';
 
 const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
 
-export const getMarker = createAsyncThunk('marker/getMarkers', async () => {
-  try {
-    const response = await axios.get(`${URL}/all`);
+const getAllMarker = createAsyncThunk(
+  'marker/getMarkers',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get(`${URL}/all`);
 
-    if (response !== undefined) {
-      return response.data;
+      if (response !== undefined) {
+        return thunkAPI.fulfillWithValue(response.data);
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue({
+        errorMessage: '마커 정보를 가져오는 데 실패했습니다.',
+      });
     }
-  } catch (error) {
-    alert('예기치 못한 에러가 발생했습니다.');
-    throw error;
   }
-});
+);
 
 const initialState: initialType = {
   markerData: [],
-  status: 'idle',
+  loading: false,
+  error: null,
 };
 
 const markerSlice = createSlice({
-  name: 'markers',
+  name: 'markerData',
   initialState,
   reducers: {
-    addMarker(state, action: PayloadAction<MarkerInfo>): void {
+    addMarker(state, action) {
       state.markerData = produce(
         state.markerData,
         (draft: Draft<MarkerData>[]) => {
@@ -38,13 +43,20 @@ const markerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // GET 요청의 로딩, 성공 처리
-      .addCase(getMarker.pending, (state, action) => {
-        state.status = 'loading';
+      .addCase(getAllMarker.pending, (state) => {
+        state.error = null;
+        state.loading = true;
       })
-      .addCase(getMarker.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.markerData = action.payload;
+      .addCase(getAllMarker.fulfilled, (state, { payload }) => {
+        state.error = null;
+        state.loading = false;
+        state.markerData = payload;
+      })
+      .addCase(getAllMarker.rejected, (state, action) => {
+        state.error =
+          (action.payload as { errorMessage: string } | undefined)
+            ?.errorMessage || null;
+        state.loading = false;
       });
   },
 });

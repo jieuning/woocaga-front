@@ -3,6 +3,11 @@ interface Coordinates {
   longitude: string;
 }
 
+interface KakaoCoordinates {
+  lat: number;
+  lng: number;
+}
+
 interface MarkerInfo {
   id?: number;
   name?: string | null;
@@ -13,11 +18,18 @@ interface MarkerInfo {
 
 interface initialType {
   markerData?: MarkerInfo[];
-  status: string;
+  loading: boolean;
+  error: string | null | undefined;
 }
 
 interface MarkerData {
   markers: initialType;
 }
 
-export type { MarkerData, MarkerInfo, Coordinates, initialType };
+export type {
+  MarkerData,
+  MarkerInfo,
+  Coordinates,
+  initialType,
+  KakaoCoordinates,
+};

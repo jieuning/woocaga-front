@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MarkerInfo, initialType } from '../types/markers';
+import { MarkerInfo, KakaoCoordinates } from '../types/markers';
 // 이미지
 import coffeeMarker from '../assets/coffee_marker.png';
 import dessertMarker from '../assets/dessert_marker.png';
@@ -10,8 +10,9 @@ import {
   dessertCoordinates,
 } from '../utils/PositionByCategory';
 import { addingMarkersToAMap } from '../utils/AddingMakersToAMap';
+import { Modal } from './Modal';
 // 리덕스
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../App';
 import { addMarker } from '../store/markerSlice';
 
 import axios from 'axios';
@@ -23,25 +24,16 @@ declare global {
 }
 
 export const Map = () => {
-  const data = useSelector((state: { markers: initialType }) => state.markers);
-  const dispatch = useDispatch();
+  const data = useAppSelector((state) => state.markers);
+  const dispatch = useAppDispatch();
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
 
   const [activeCategory, setActiveCategory] = useState<string>('커피류');
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [clickedPosition, setClickedPosition] =
+    useState<KakaoCoordinates | null>(null);
 
-  // 로컬 스토리지에서 초기 데이터 가져오기
-  const storedMarkers = localStorage.getItem('markers');
-  const [localMarkers, setLocalMarkers] = useState<MarkerInfo[]>(
-    storedMarkers ? JSON.parse(storedMarkers) : data.markerData
-  );
-
-  useEffect(() => {
-    // 데이터가 변경될 때마다 로컬 스토리지 업데이트
-    if (data.markerData) {
-      localStorage.setItem('markers', JSON.stringify(data.markerData));
-      setLocalMarkers(data.markerData);
-    }
-  }, [data.markerData]);
+  console.log(data);
 
   useEffect(() => {
     loadKakaoMap();
@@ -73,8 +65,8 @@ export const Map = () => {
       );
 
       // 카테고리별 위도, 경도 데이터
-      const coffeePositions = coffeeCoordinates(localMarkers);
-      const dessertPositions = dessertCoordinates(localMarkers);
+      const coffeePositions = coffeeCoordinates(data);
+      const dessertPositions = dessertCoordinates(data);
 
       // 해당 카테고리에 마커 추가
       if (activeCategory !== '디저트') {
@@ -130,8 +122,6 @@ export const Map = () => {
 
                 // 렌더링
                 marker.setMap(map);
-                // 마커 드래그
-                marker.setDraggable(true);
               }
             } else {
               alert('일치하는 주소가 존재하지 않습니다.');
@@ -143,15 +133,18 @@ export const Map = () => {
   };
 
   return (
-    <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
-      <Category
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
-      <div
-        id="map"
-        style={{ width: '100%', height: '480px', borderRadius: '10px' }}
-      ></div>
-    </section>
+    <>
+      <Modal />
+      <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
+        <Category
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
+        <div
+          id="map"
+          style={{ width: '100%', height: '480px', borderRadius: '10px' }}
+        ></div>
+      </section>
+    </>
   );
 };

@@ -3,11 +3,34 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'spoqa';
-    src: url('../assets/font/SpoqaHanSansNeo-Regular.woff') format('woff2'),
-         url('../assets/font/SpoqaHanSansNeo-Regular.woff2') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Medium.woff') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Medium.woff2') format('woff2'),
-         url('../assets/font/SpoqaHanSansNeo-Bold.woff') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
+  font-family: 'spoqa';
+  src:
+    url('../assets/font/SpoqaHanSansNeo-Regular.woff') format('woff2'),
+    url('../assets/font/SpoqaHanSansNeo-Regular.woff2') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Medium.woff') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Medium.woff2') format('woff2'),
+    url('../assets/font/SpoqaHanSansNeo-Bold.woff') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Bold.woff2') format('woff2');
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.modal-button {
+  width: 100%;
+  height: 46px;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.modal-button:hover {
+  background-color: #c1835c;
 }
