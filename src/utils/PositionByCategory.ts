@@ -3,8 +3,6 @@ import { Coordinates, initialType } from '../types/markers';
 export const coffeeCoordinates = (data: initialType) => {
   const coffee: Coordinates[] = [];
 
-  console.log(coffee);
-
   // 카테고리가 커피인 위도, 경도
   data?.markerData?.forEach((marker) => {
     if (marker.category === '커피류') {
@@ -22,7 +20,6 @@ export const coffeeCoordinates = (data: initialType) => {
 
 export const dessertCoordinates = (data: initialType) => {
   const dessert: Coordinates[] = [];
-  console.log(dessert);
 
   // 카테고리가 디저트인 위도, 경도
   data?.markerData?.forEach((marker) => {

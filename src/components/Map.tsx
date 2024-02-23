@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MarkerInfo, KakaoCoordinates } from '../types/markers';
+import { kakao } from '../App';
 // 이미지
 import coffeeMarker from '../assets/coffee_marker.png';
 import dessertMarker from '../assets/dessert_marker.png';
@@ -17,12 +18,6 @@ import { addMarker } from '../store/markerSlice';
 
 import axios from 'axios';
 
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
-
 export const Map = () => {
   const data = useAppSelector((state) => state.markers);
   const dispatch = useAppDispatch();
@@ -32,16 +27,14 @@ export const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [clickedPosition, setClickedPosition] =
     useState<KakaoCoordinates | null>(null);
-
-  console.log(data);
+  const [kakaoMap, setKakapMap] = useState<any>(null);
+  const imageRef = useRef<any>(null);
 
   useEffect(() => {
     loadKakaoMap();
   }, [activeCategory]);
 
   const loadKakaoMap = () => {
-    const kakao: any = window['kakao'];
-
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
@@ -51,7 +44,8 @@ export const Map = () => {
       };
 
       const map = new kakao.maps.Map(container, options);
-      let geocoder = new kakao.maps.services.Geocoder();
+      // Map 객체에 대한 참조 저장
+      setKakapMap(map);
 
       // 마커 이미지 커스텀
       const imageSrc =
@@ -63,6 +57,8 @@ export const Map = () => {
         imageSize,
         imageOption
       );
+
+      imageRef.current = markerImage;
 
       // 카테고리별 위도, 경도 데이터
       const coffeePositions = coffeeCoordinates(data);
@@ -78,63 +74,89 @@ export const Map = () => {
       // 클릭 이벤트 핸들러
       kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
         const latlng = mouseEvent.latLng;
+        setClickedPosition({ lat: latlng.getLat(), lng: latlng.getLng() });
 
-        // 위도, 경도 -> 주소로 변환
-        geocoder.coord2Address(
-          latlng.getLng(),
-          latlng.getLat(),
-          (result: any, status: any) => {
-            if (status === kakao.maps.services.Status.OK) {
-              // state에 추가할 obj
-              const newMarker: MarkerInfo = {
-                address: result[0].address.address_name,
-                category: activeCategory !== '디저트' ? '커피류' : '디저트',
-                coordinates: [
-                  {
-                    latitude: latlng.getLat(),
-                    longitude: latlng.getLng(),
-                  },
-                ],
-              };
+        // 모달 오픈
+        setModalOpen(true);
+      });
+    }
+  };
 
-              if (newMarker) {
+  const handleMarkerCreate = async () => {
+    if (clickedPosition) {
+      let geocoder = new kakao.maps.services.Geocoder();
+
+      // 위도, 경도 -> 주소로 변환
+      geocoder.coord2Address(
+        clickedPosition.lng,
+        clickedPosition.lat,
+        async (result: any, status: any) => {
+          if (status === kakao.maps.services.Status.OK) {
+            // state에 추가할 obj
+            const newMarker: MarkerInfo = {
+              address: result[0].address.address_name,
+              category: activeCategory !== '디저트' ? '커피류' : '디저트',
+              coordinates: [
+                {
+                  latitude: clickedPosition.lat,
+                  longitude: clickedPosition.lng,
+                },
+              ],
+            };
+
+            if (kakaoMap) {
+              try {
+                // mutation 사용
                 // db에 저장
-                axios
-                  .post(`${URL}/add`, JSON.stringify(newMarker), {
+                const response = await axios.post(
+                  `${URL}/add`,
+                  JSON.stringify(newMarker),
+                  {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                  })
-                  .then((response) => {
-                    const data = response.data.newMarker;
-                    // state에 마커 추가
-                    dispatch(addMarker(data));
-                  })
-                  .catch((error) => {
-                    alert('이미 추가된 마커입니다.');
-                  });
+                  }
+                );
+                const data = response.data.newMarker;
+
+                // state에 마커 추가
+                dispatch(addMarker(data));
 
                 // 마커 생성
+                const markerPosition = new kakao.maps.LatLng(
+                  clickedPosition.lat,
+                  clickedPosition.lng
+                );
                 const marker = new kakao.maps.Marker({
-                  position: latlng,
-                  image: markerImage,
+                  position: markerPosition,
+                  image: imageRef.current,
                 });
 
                 // 렌더링
-                marker.setMap(map);
+                marker.setMap(kakaoMap);
+              } catch (error) {
+                alert('이미 생성된 마커입니다.');
               }
-            } else {
-              alert('일치하는 주소가 존재하지 않습니다.');
             }
+          } else {
+            alert('일치하는 주소가 존재하지 않습니다.');
           }
-        );
-      });
+        }
+      );
     }
   };
 
   return (
     <>
-      <Modal />
+      {modalOpen ? (
+        <Modal
+          handleMarkerCreate={handleMarkerCreate}
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+          clickedPosition={clickedPosition}
+          setClickedPosition={setClickedPosition}
+        />
+      ) : null}
       <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
         <Category
           activeCategory={activeCategory}
