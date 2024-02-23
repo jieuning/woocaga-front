@@ -1,4 +1,5 @@
 import { Coordinates } from '../types/markers';
+import { kakao } from '../App';
 
 export const addingMarkersToAMap = (
   positions: Coordinates[],

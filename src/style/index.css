@@ -34,3 +34,23 @@
 .modal-button:hover {
   background-color: #c1835c;
 }
+
+.share-button {
+  border-radius: 8px;
+  background-color: #e6c6a6;
+  color: #fff;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.disabled-button {
+  border-radius: 8px;
+  background-color: #c1835c;
+  color: #fff;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.share-button:hover {
+  background-color: #c1835c;
+}

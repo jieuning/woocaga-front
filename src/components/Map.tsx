@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { MarkerInfo, KakaoCoordinates } from '../types/markers';
 import { kakao } from '../App';
+import axios from 'axios';
 // 이미지
 import coffeeMarker from '../assets/coffee_marker.png';
 import dessertMarker from '../assets/dessert_marker.png';
@@ -15,8 +16,6 @@ import { Modal } from './Modal';
 // 리덕스
 import { useAppDispatch, useAppSelector } from '../App';
 import { addMarker } from '../store/markerSlice';
-
-import axios from 'axios';
 
 export const Map = () => {
   const data = useAppSelector((state) => state.markers);
@@ -135,7 +134,7 @@ export const Map = () => {
                 // 렌더링
                 marker.setMap(kakaoMap);
               } catch (error) {
-                alert('이미 생성된 마커입니다.');
+                alert('이미 마커가 생성된 구역입니다.');
               }
             }
           } else {
@@ -151,9 +150,7 @@ export const Map = () => {
       {modalOpen ? (
         <Modal
           handleMarkerCreate={handleMarkerCreate}
-          modalOpen={modalOpen}
           setModalOpen={setModalOpen}
-          clickedPosition={clickedPosition}
           setClickedPosition={setClickedPosition}
         />
       ) : null}

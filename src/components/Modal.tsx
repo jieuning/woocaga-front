@@ -2,8 +2,6 @@ import { KakaoCoordinates } from '../types/markers';
 
 interface ModalProps {
   handleMarkerCreate: () => Promise<void>;
-  modalOpen: boolean;
-  clickedPosition: KakaoCoordinates | null;
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setClickedPosition: React.Dispatch<
     React.SetStateAction<KakaoCoordinates | null>
