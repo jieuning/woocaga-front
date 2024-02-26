@@ -9,7 +9,7 @@ import store from './store/index.ts';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 // react query
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 export const persistor = persistStore(store);
 const queryClient = new QueryClient();

@@ -3,7 +3,7 @@ import { MarkerData, initialType } from '../types/markers';
 import axios from 'axios';
 import { produce, Draft } from 'immer';
 
-const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
+const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
 
 const getAllMarker = createAsyncThunk(
   'marker/getMarkers',

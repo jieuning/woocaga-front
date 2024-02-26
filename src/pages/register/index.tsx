@@ -1,10 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// react query
+import { useMutation } from 'react-query';
+import axios from 'axios';
 
 interface formDataType {
   email: string;
   password: string;
   passwordConfirm: string;
+}
+
+interface newUserType {
+  email: string;
+  password: string;
 }
 
 const Register = () => {
@@ -16,6 +24,27 @@ const Register = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   const navigate = useNavigate();
+
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+
+  const registerMutation = useMutation(
+    (newUser: newUserType) => axios.post(`${URL}/register`, newUser),
+    {
+      onSuccess: (data) => {
+        alert(`${data.data.email}님 가입이 완료되었습니다. 환영합니다!!🎉`);
+        navigate('/login');
+      },
+      onError: (error: Error) => {
+        console.log(error);
+        if (error.message === 'Request failed with status code 409') {
+          setErrors((prevErrors) => [
+            ...prevErrors,
+            '이미 가입된 이메일 입니다.',
+          ]);
+        }
+      },
+    }
+  );
 
   const handleChange = (event: any) => {
     setFormData({
@@ -61,16 +90,21 @@ const Register = () => {
       ]);
     }
 
-    // 초기화
-    if (errors.length === 0) {
-      setFormData({
-        email: '',
-        password: '',
-        passwordConfirm: '',
-      });
+    // 빈칸 검사
+    if (!formData.email || !formData.password || !formData.passwordConfirm) {
+      setErrors((prevErrors) => [...prevErrors, '모든 칸을 입력해주세요.']);
+      return;
+    }
 
-      alert('가입이 완료되었습니다. 환영합니다!!🎉');
-      navigate('/login');
+    if (errors.length === 0) {
+      const newUser: newUserType = {
+        email: formData.email,
+        password: formData.password,
+      };
+
+      if (newUser) {
+        registerMutation.mutate(newUser);
+      }
     }
   };
 
@@ -115,9 +149,6 @@ const Register = () => {
           <button
             type="submit"
             className={`${formData.email && formData.password && formData.passwordConfirm ? 'disabled-button' : 'share-button'} w-96 p-3`}
-            disabled={
-              !formData.email || !formData.password || !formData.passwordConfirm
-            }
           >
             가입하기
           </button>

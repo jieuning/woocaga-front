@@ -12,7 +12,7 @@ import {
   dessertCoordinates,
 } from '../utils/PositionByCategory';
 import { addingMarkersToAMap } from '../utils/AddingMakersToAMap';
-import { Modal } from './Modal';
+import { Modal, ModalInfo } from './Modals';
 // 리덕스
 import { useAppDispatch, useAppSelector } from '../App';
 import { addMarker } from '../store/markerSlice';
@@ -20,13 +20,13 @@ import { addMarker } from '../store/markerSlice';
 export const Map = () => {
   const data = useAppSelector((state) => state.markers);
   const dispatch = useAppDispatch();
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/marker`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
 
   const [activeCategory, setActiveCategory] = useState<string>('커피류');
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [clickedPosition, setClickedPosition] =
     useState<KakaoCoordinates | null>(null);
   const [kakaoMap, setKakapMap] = useState<any>(null);
+  const [mapModal, setMapModal] = useState<boolean>();
   const imageRef = useRef<any>(null);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const Map = () => {
         setClickedPosition({ lat: latlng.getLat(), lng: latlng.getLng() });
 
         // 모달 오픈
-        setModalOpen(true);
+        setMapModal(true);
       });
     }
   };
@@ -145,15 +145,22 @@ export const Map = () => {
     }
   };
 
+  const markerModalInfo: ModalInfo = {
+    content: '해당 위치에 마커를 추가하시겠습니까?',
+    btntext: '생성',
+    lonclick: () => {
+      setClickedPosition(null);
+      setMapModal((close) => !close);
+    },
+    ronclick: () => {
+      handleMarkerCreate();
+      setMapModal((close) => !close);
+    },
+  };
+
   return (
     <>
-      {modalOpen ? (
-        <Modal
-          handleMarkerCreate={handleMarkerCreate}
-          setModalOpen={setModalOpen}
-          setClickedPosition={setClickedPosition}
-        />
-      ) : null}
+      {mapModal ? <Modal info={markerModalInfo} /> : null}
       <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
         <Category
           activeCategory={activeCategory}
