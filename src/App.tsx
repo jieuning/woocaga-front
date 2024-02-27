@@ -1,8 +1,8 @@
 import './style/App.css';
-import { Routes, Route } from 'react-router-dom';
-// 헤더
-import { Header } from './components/Header';
-// 페이지
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+//components
+import { Layout } from './components/Layout';
+// pages
 import Intro from './pages/intro';
 import Main from './pages/main';
 import Register from './pages/register';
@@ -24,18 +24,22 @@ export const kakao: any = window['kakao'];
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
+const routes = [
+  {
+    element: <Layout />,
+    children: [
+      { path: '/', element: <Intro /> },
+      { path: '/main', element: <Main /> },
+      { path: '/register', element: <Register /> },
+      { path: '/login', element: <Login /> },
+    ],
+  },
+];
+
+const router = createBrowserRouter(routes);
+
 const App = () => {
-  return (
-    <div className="font-spoqa bg-ivory h-screen">
-      <Header />
-      <Routes>
-        <Route path="/" element={<Intro />} />
-        <Route path="/main" element={<Main />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default App;
