@@ -1,4 +1,4 @@
-import { Coordinates, initialType } from '../types/markers';
+import { Coordinates, initialType, AddMarker } from '../types/markers';
 
 export const coffeeCoordinates = (data: initialType) => {
   const coffee: Coordinates[] = [];

@@ -3,6 +3,12 @@ interface Coordinates {
   longitude: number;
 }
 
+interface AddMarker {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
 interface KakaoCoordinates {
   lat: number;
   lng: number;
@@ -18,8 +24,8 @@ interface MarkerInfo {
 
 interface initialType {
   markerData?: MarkerInfo[];
-  loading: boolean;
-  error: string | null | undefined;
+  loading?: boolean;
+  error?: string | null | undefined;
 }
 
 interface MarkerData {
@@ -32,4 +38,5 @@ export type {
   Coordinates,
   initialType,
   KakaoCoordinates,
+  AddMarker,
 };

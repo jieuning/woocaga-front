@@ -26,7 +26,6 @@ const Register = () => {
   const navigate = useNavigate();
 
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
-
   const registerMutation = useMutation(
     (newUser: newUserType) => axios.post(`${URL}/register`, newUser),
     {
@@ -35,7 +34,6 @@ const Register = () => {
         navigate('/login');
       },
       onError: (error: Error) => {
-        console.log(error);
         if (error.message === 'Request failed with status code 409') {
           setErrors((prevErrors) => [
             ...prevErrors,

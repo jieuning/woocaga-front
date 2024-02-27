@@ -14,6 +14,7 @@ export const addingMarkersToAMap = (
     const marker = new kakao.maps.Marker({
       position: markerPosition,
       image: markerImage,
+      clickable: true,
     });
     marker.setMap(map);
   });

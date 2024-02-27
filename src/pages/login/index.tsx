@@ -17,22 +17,21 @@ const Login = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
-
   const userMutation = useMutation(
     (user: formDataType) => axios.post(`${URL}/login`, user),
     {
       onSuccess: (data) => {
-        console.log('Success:', data);
         localStorage.setItem('token', data.data.token);
         navigate('/main');
       },
       onError: (error: Error) => {
-        // 비밀번호 혹은 이메일 불일치 검사
-        setErrors((prevErrors) => [
-          ...prevErrors,
-          '이메일 혹은 비밀번호가 일치하지 않습니다.',
-        ]);
-        console.error('Error:', error);
+        if (error.message === 'Request failed with status code 401') {
+          // 비밀번호 혹은 이메일 불일치 검사
+          setErrors((prevErrors) => [
+            ...prevErrors,
+            '이메일 혹은 비밀번호가 일치하지 않습니다.',
+          ]);
+        }
       },
     }
   );
@@ -80,6 +79,7 @@ const Login = () => {
       return;
     }
 
+    // 에러가 없고 isError가 flase일 때
     if (errors.length === 0 && !userMutation.isError) {
       const user = {
         email: formData.email,

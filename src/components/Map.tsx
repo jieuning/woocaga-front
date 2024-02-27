@@ -19,6 +19,8 @@ import { addMarker } from '../store/markerSlice';
 
 export const Map = () => {
   const data = useAppSelector((state) => state.markers);
+
+  console.log(data);
   const dispatch = useAppDispatch();
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
 
@@ -39,7 +41,7 @@ export const Map = () => {
       const options = {
         // 건대입구역 기준
         center: new kakao.maps.LatLng(37.54022556554232, 127.0706397574826),
-        level: 3,
+        level: 2,
       };
 
       const map = new kakao.maps.Map(container, options);
@@ -78,10 +80,23 @@ export const Map = () => {
         // 모달 오픈
         setMapModal(true);
       });
+
+      // // InfoWindow 생성
+      // const infoWindow = new kakao.maps.InfoWindow({
+      //   map: map,
+      //   position: markerPosition,
+      //   content: `<div className='h-4 p-2.5 bg-white'></div>`,
+      //   removable: true,
+      // });
+
+      // // 마커 클릭 시 InfoWindow 열기
+      // kakao.maps.event.addListener(marker, 'click', function () {
+      //   infoWindow.open(map, marker);
+      // });
     }
   };
 
-  const handleMarkerCreate = async () => {
+  const handleMarkerCreate = () => {
     if (clickedPosition) {
       let geocoder = new kakao.maps.services.Geocoder();
 
@@ -105,7 +120,6 @@ export const Map = () => {
 
             if (kakaoMap) {
               try {
-                // mutation 사용
                 // db에 저장
                 const response = await axios.post(
                   `${URL}/add`,
@@ -129,6 +143,7 @@ export const Map = () => {
                 const marker = new kakao.maps.Marker({
                   position: markerPosition,
                   image: imageRef.current,
+                  clickable: true,
                 });
 
                 // 렌더링
@@ -161,14 +176,14 @@ export const Map = () => {
   return (
     <>
       {mapModal ? <Modal info={markerModalInfo} /> : null}
-      <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-3">
+      <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-4">
         <Category
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
         <div
           id="map"
-          style={{ width: '100%', height: '480px', borderRadius: '10px' }}
+          style={{ width: '100%', height: '500px', borderRadius: '10px' }}
         ></div>
       </section>
     </>
