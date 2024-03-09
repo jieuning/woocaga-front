@@ -1,6 +1,14 @@
 interface Coordinates {
-  latitude: number;
-  longitude: number;
+  address?: string;
+  useremail?: string;
+  latitude?: number;
+  longitude?: number;
+  x?: number;
+  y?: number;
+}
+
+interface CoordinatesObj {
+  positions: Coordinates[];
 }
 
 interface AddMarker {
@@ -15,7 +23,7 @@ interface KakaoCoordinates {
 }
 
 interface MarkerInfo {
-  id?: number;
+  useremail?: string;
   name?: string | null;
   address?: string;
   category?: string;
@@ -32,6 +40,25 @@ interface MarkerData {
   markers: initialType;
 }
 
+interface InfoData {
+  address_name?: string;
+  category_group_code?: string;
+  category_group_name?: string;
+  distance?: string;
+  id?: string;
+  phone?: string;
+  place_name?: string;
+  place_url?: string;
+  road_address_name?: string;
+  x?: string;
+  y?: string;
+}
+
+interface UserDataType {
+  token?: string | undefined;
+  email?: string | undefined;
+}
+
 export type {
   MarkerData,
   MarkerInfo,
@@ -39,4 +66,7 @@ export type {
   initialType,
   KakaoCoordinates,
   AddMarker,
+  CoordinatesObj,
+  InfoData,
+  UserDataType,
 };

@@ -10,25 +10,24 @@ export const Category = ({
   activeCategory,
   setActiveCategory,
 }: CategoryProps) => {
-  // 카테고리 클릭 이벤트
-  const clickHandleCategory = (categoryName: string) => {
+  const handleCategoryClick = (categoryName: string) => {
     setActiveCategory(categoryName);
   };
 
   return (
-    <ul className="flex gap-2.5">
+    <ul className="flex flex-row gap-2.5">
       <li
-        className={`${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
-        onClick={() => clickHandleCategory('커피류')}
+        className={`${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center justify-center hover:bg-primary transition-all cursor-pointer`}
+        onClick={() => handleCategoryClick('커피류')}
       >
-        <img src={coffeeIcon} width="32" alt="커피 맛집" className="pb-1.5" />
+        <img src={coffeeIcon} width="28" alt="커피 맛집" className="pb-1.5" />
         커피류
       </li>
       <li
-        className={`${activeCategory === '디저트' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center hover:bg-primary transition-all cursor-pointer`}
-        onClick={() => clickHandleCategory('디저트')}
+        className={`${activeCategory === '디저트' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center justify-center hover:bg-primary transition-all cursor-pointer`}
+        onClick={() => handleCategoryClick('디저트')}
       >
-        <img src={desertIcon} width="32" alt="디저트 맛집" className="pb-1.5" />
+        <img src={desertIcon} width="28" alt="디저트 맛집" className="pb-1.5" />
         디저트
       </li>
     </ul>

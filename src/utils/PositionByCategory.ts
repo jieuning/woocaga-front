@@ -1,37 +1,33 @@
-import { Coordinates, initialType, AddMarker } from '../types/markers';
+import { Coordinates, initialType } from '../types/markers';
 
-export const coffeeCoordinates = (data: initialType) => {
-  const coffee: Coordinates[] = [];
+const getCoordinatesByCategory = (
+  data: initialType,
+  category: string
+): Coordinates[] => {
+  const coordinates: Coordinates[] = [];
 
-  // 카테고리가 커피인 위도, 경도
   data?.markerData?.forEach((marker) => {
-    if (marker.category === '커피류') {
-      marker.coordinates?.forEach((coordinates) => {
-        coffee.push({
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
+    if (marker.category === category) {
+      marker.coordinates?.forEach((coordinate) => {
+        coordinates.push({
+          address: marker.address,
+          useremail: marker.useremail,
+          latitude: coordinate.latitude,
+          longitude: coordinate.longitude,
+          x: coordinate.x,
+          y: coordinate.y,
         });
       });
     }
   });
 
-  return coffee;
+  return coordinates;
+};
+
+export const coffeeCoordinates = (data: initialType) => {
+  return getCoordinatesByCategory(data, '커피류');
 };
 
 export const dessertCoordinates = (data: initialType) => {
-  const dessert: Coordinates[] = [];
-
-  // 카테고리가 디저트인 위도, 경도
-  data?.markerData?.forEach((marker) => {
-    if (marker.category === '디저트') {
-      marker.coordinates?.forEach((coordinates) => {
-        dessert.push({
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
-        });
-      });
-    }
-  });
-
-  return dessert;
+  return getCoordinatesByCategory(data, '디저트');
 };

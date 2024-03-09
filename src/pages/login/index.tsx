@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // react qurey
 import { useMutation } from 'react-query';
+import { useAppDispatch } from '../../App';
+import { setUserToken, setUserEmail } from '../../store/userSlice';
 
 interface formDataType {
   email: string;
@@ -10,18 +12,22 @@ interface formDataType {
 }
 
 const Login = () => {
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState<formDataType>({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
 
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const userMutation = useMutation(
     (user: formDataType) => axios.post(`${URL}/login`, user),
     {
       onSuccess: (data) => {
-        localStorage.setItem('token', data.data.token);
+        dispatch(setUserToken(data.data.token));
+        dispatch(setUserEmail(data.data.email));
         navigate('/main');
       },
       onError: (error: Error) => {
@@ -35,8 +41,6 @@ const Login = () => {
       },
     }
   );
-
-  const navigate = useNavigate();
 
   const handleChange = (event: any) => {
     setFormData({

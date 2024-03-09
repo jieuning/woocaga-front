@@ -16,6 +16,9 @@ interface newUserType {
 }
 
 const Register = () => {
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState<formDataType>({
     email: '',
     password: '',
@@ -23,9 +26,6 @@ const Register = () => {
   });
   const [errors, setErrors] = useState<string[]>([]);
 
-  const navigate = useNavigate();
-
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const registerMutation = useMutation(
     (newUser: newUserType) => axios.post(`${URL}/register`, newUser),
     {

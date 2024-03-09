@@ -1,7 +1,6 @@
+import './style/index.css';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
-import { RouterProvider } from 'react-router-dom';
-import './style/index.css';
 // redux tookit
 import { Provider } from 'react-redux';
 import store from './store/index.ts';
