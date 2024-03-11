@@ -29,16 +29,19 @@ const routes = [
     element: <Layout />,
     children: [
       { path: '/', element: <Intro /> },
-      { path: '/main', element: <Main /> },
+      {
+        path: '/main',
+        element: <Main />,
+      },
       { path: '/register', element: <Register /> },
       { path: '/login', element: <Login /> },
     ],
   },
 ];
 
-const router = createBrowserRouter(routes);
-
 const App = () => {
+  const router = createBrowserRouter(routes);
+
   return <RouterProvider router={router} />;
 };
 

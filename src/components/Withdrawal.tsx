@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal, ModalInfo } from './Modals';
 import { useNavigate } from 'react-router-dom';
 import { UserDataType } from '../types/markers';
@@ -31,7 +31,8 @@ export const Withdrawal = () => {
           navigate('/');
         }
       },
-      onError: () => {
+      onError: (error) => {
+        console.log(error);
         alert('에러가 발생했습니다. 다시 시도해주세요.');
       },
     }

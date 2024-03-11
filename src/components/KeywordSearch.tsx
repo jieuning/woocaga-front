@@ -2,7 +2,7 @@ import searchMarker from '../assets/search_marker.png';
 import searchIcon from '../assets/search_btn.png';
 import myDessertMarker from '../assets/my_dessert_marker.png';
 import myCoffeeMarker from '../assets/my_coffee_marker.png';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { kakao } from '../App';
 import { InfoData, MarkerInfo, KakaoCoordinates } from '../types/markers';
 import axios, { AxiosError } from 'axios';
@@ -41,16 +41,15 @@ export const KeyWordSearch = ({
   const dispatch = useAppDispatch();
 
   const [keyword, setKeyword] = useState<string | undefined>('');
+  const [previousKeyword, setPreviousKeyword] = useState<string | undefined>(
+    ''
+  );
   const [infoData, setInfoData] = useState<InfoData[] | []>([]);
   const [clickedSearchList, setClickedSearchList] = useState<boolean>(false);
   const [clickedListData, setClickedListData] = useState<InfoData[] | []>([]);
-  const [markers, setMarkers] = useState<any>(null);
-
-  // 검색 결과를 담을 객체
-  let searchResults: Record<string, any> = {};
+  const markersRef = useRef<any[]>([]);
 
   const handleChange = (event: any) => {
-    event.preventDefault();
     setKeyword(event.target.value);
   };
 
@@ -60,19 +59,13 @@ export const KeyWordSearch = ({
     setMapModal(true);
   };
 
-  // 기존 검색 마커 클리어
-  const clearMarkers = () => {
-    markers.setMap(null);
-    setMarkers(null);
-  };
-
   const displayMarker = (place: InfoData) => {
     const infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
     const marker = new kakao.maps.Marker({
       position: new kakao.maps.LatLng(place?.y, place?.x),
     });
     marker.setMap(kakaoMap);
-    setMarkers(marker);
+    markersRef.current.push(marker);
 
     // 마커 에 클릭이벤트를 등록
     kakao.maps.event.addListener(marker, 'click', function () {
@@ -88,20 +81,25 @@ export const KeyWordSearch = ({
     });
   };
 
+  // 이전 검색 내역 지도에서 제거
+  const removeMarkers = () => {
+    markersRef.current.forEach((marker) => {
+      marker.setMap(null);
+    });
+    markersRef.current = [];
+  };
+
   const placesSearchCB = (data: InfoData[], status: string) => {
     if (status === kakao.maps.services.Status.OK) {
       const bounds = new kakao.maps.LatLngBounds();
-      if (keyword) {
-        // keyword를 검색 결과 키 값으로 사용
-        searchResults[keyword] = data;
-      }
+      console.log(data);
 
       if (data) {
         setInfoData(data);
-        dispatch(setInfo(searchResults));
+        dispatch(setInfo(data));
       }
 
-      console.log(data);
+      removeMarkers();
 
       for (let i = 0; i < data.length; i++) {
         displayMarker(data[i]);
@@ -126,25 +124,20 @@ export const KeyWordSearch = ({
         alert('키워드를 입력해주세요!');
         return false;
       }
-
-      const searchInfoKey = Object.keys(searchInfoData);
-      const searchInfoValues = Object.values(searchInfoData);
-      const values: any = searchInfoValues[0];
-      const bounds = new kakao.maps.LatLngBounds();
-
-      // 검색했을 때 keyword와 local데이터의 키값이 같으면
-      // kakao api를 콜하지 않고 persist데이터 사용
-      if (keyword === searchInfoKey[0]) {
-        for (let i = 0; i < values.length; i++) {
-          displayMarker(values[i]);
-          bounds.extend(new kakao.maps.LatLng(values[i].y, values[i].x));
-          kakaoMap.setBounds(bounds);
-        }
-      } else if (keyword && keyword !== searchInfoKey[0]) {
-        clearMarkers();
+      if (keyword !== previousKeyword) {
+        setPreviousKeyword(keyword);
         // 장소 검색 객체를 생성
         const ps = new kakao.maps.services.Places();
         ps.keywordSearch(keyword, placesSearchCB);
+      } else {
+        const bounds = new kakao.maps.LatLngBounds();
+        for (let i = 0; i < searchInfoData.length; i++) {
+          setInfoData(searchInfoData);
+          displayMarker(searchInfoData[i]);
+          bounds.extend(
+            new kakao.maps.LatLng(searchInfoData[i].y, searchInfoData[i].x)
+          );
+        }
       }
     }
   };

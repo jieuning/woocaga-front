@@ -10,7 +10,6 @@ import myDessertMarker from '../assets/my_dessert_marker.png';
 // components
 import { Category } from './Category';
 import { KeyWordSearch } from './KeywordSearch';
-import { MyMarkers } from './MyMarkers';
 // utils
 import {
   coffeeCoordinates,
@@ -30,7 +29,7 @@ export const Map = () => {
   const userData = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
-  const { data, refetch } = useQuery(
+  const { data, refetch, isFetching } = useQuery(
     'markerData',
     async () => {
       const response = await axios.get(`${URL}/all`);

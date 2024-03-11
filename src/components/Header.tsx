@@ -50,9 +50,6 @@ export const Header = () => {
   const intervalTime = 180 * 60 * 1000;
   const logoutDelay = 30 * 1000;
 
-  // const intervalTime = 1 * 60 * 1000;
-  // const logoutDelay = 30 * 1000;
-
   // 2시간 30분 후에 모달창
   // 모달창 뜨고 30초 후에 자동 로그아웃
   const autoLogoutTimer = () => {
