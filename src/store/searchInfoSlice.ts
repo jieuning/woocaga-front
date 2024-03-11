@@ -16,8 +16,11 @@ const searchInfoSlice = createSlice({
     setInfo(state, action) {
       state.info = action.payload;
     },
+    deleteInfo(state) {
+      state.info = [];
+    },
   },
 });
 
-export const { setInfo } = searchInfoSlice.actions;
+export const { setInfo, deleteInfo } = searchInfoSlice.actions;
 export default searchInfoSlice.reducer;

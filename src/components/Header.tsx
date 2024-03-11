@@ -6,6 +6,7 @@ import axios from 'axios';
 // components
 import { Modal, ModalInfo } from './Modals';
 import { Withdrawal } from './Withdrawal';
+import { MyMarkers } from './MyMarkers';
 // redux
 import { useAppDispatch, useAppSelector } from '../App';
 import { setUserToken, deleteToken } from '../store/userSlice';
@@ -19,6 +20,7 @@ export const Header = () => {
   const [headerModal, setHeaderModal] = useState<boolean>(false);
   const [userMenu, setUserMenu] = useState<boolean>(false);
   const [extendLoginModal, setExtendLoginModal] = useState<boolean>(false);
+  const [openMyMarkers, setOpenMyMarkers] = useState<boolean>(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | undefined>(undefined);
 
   const refreshToken = async () => {
@@ -47,6 +49,9 @@ export const Header = () => {
 
   const intervalTime = 180 * 60 * 1000;
   const logoutDelay = 30 * 1000;
+
+  // const intervalTime = 1 * 60 * 1000;
+  // const logoutDelay = 30 * 1000;
 
   // 2시간 30분 후에 모달창
   // 모달창 뜨고 30초 후에 자동 로그아웃
@@ -116,7 +121,8 @@ export const Header = () => {
     <>
       {headerModal && <Modal info={logoutModalInfo} />}
       {extendLoginModal && <Modal info={extendLoginInfo} />}
-      <section className="fixed w-full h-14 bg-primary flex items-center justify-between px-12 z-40">
+      {openMyMarkers && <MyMarkers setOpenMyMarkers={setOpenMyMarkers} />}
+      <section className="fixed w-full h-14 bg-primary flex items-center justify-between px-12 z-30">
         <img
           onClick={() => navigate(`${!userData.token ? '/' : '/main'}`)}
           className="w-32 cursor-pointer"
@@ -135,7 +141,7 @@ export const Header = () => {
                 {userData.email}님
               </div>
               <nav
-                className={`${!userMenu ? 'hidden' : 'block'} absolute top-11 right-12 w-44 h-32 p-2.5 pt-5 bg-white rounded-md border border-primary cursor-default`}
+                className={`${!userMenu ? 'hidden' : 'block'} absolute top-11 right-12 w-44 p-2.5 bg-white rounded-md border border-primary cursor-default`}
               >
                 <img
                   onClick={() => setUserMenu((close) => !close)}
@@ -144,9 +150,6 @@ export const Header = () => {
                   alt="닫기 버튼"
                 />
                 <div className="flex flex-col items-center gap-2.5">
-                  <p className="text-black hover:text-brown cursor-pointer">
-                    내 마커 보기
-                  </p>
                   <p
                     className="text-black hover:text-brown cursor-pointer"
                     onClick={() => {
@@ -155,6 +158,15 @@ export const Header = () => {
                     }}
                   >
                     로그아웃
+                  </p>
+                  <p
+                    onClick={() => {
+                      setUserMenu((close) => !close);
+                      setOpenMyMarkers(true);
+                    }}
+                    className="text-black hover:text-brown cursor-pointer"
+                  >
+                    내 마커보기
                   </p>
                   <Withdrawal />
                 </div>

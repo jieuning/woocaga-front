@@ -10,6 +10,7 @@ import myDessertMarker from '../assets/my_dessert_marker.png';
 // components
 import { Category } from './Category';
 import { KeyWordSearch } from './KeywordSearch';
+import { MyMarkers } from './MyMarkers';
 // utils
 import {
   coffeeCoordinates,
@@ -143,7 +144,6 @@ export const Map = () => {
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
-        {/* <MyMarkers />/ */}
         <div className="flex gap-2.5">
           <div
             id="map"

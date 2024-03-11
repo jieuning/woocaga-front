@@ -13,8 +13,14 @@ const markerSlice = createSlice({
     setMarkers(state, action) {
       state.markerData = action.payload;
     },
+    removeMarker(state, action) {
+      const address = action.payload;
+      state.markerData = state.markerData?.filter(
+        (marker) => marker.address !== address
+      );
+    },
   },
 });
 
-export const { setMarkers } = markerSlice.actions;
+export const { setMarkers, removeMarker } = markerSlice.actions;
 export default markerSlice.reducer;

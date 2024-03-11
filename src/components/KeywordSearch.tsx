@@ -12,7 +12,7 @@ import { Modal, ModalInfo } from './Modals';
 import { markerImageCustom } from '../utils/markerImageCustom';
 // redux
 import { useAppDispatch, useAppSelector } from '../App';
-import { setInfo } from '../store/searchInfoSlice';
+import { setInfo, deleteInfo } from '../store/searchInfoSlice';
 
 interface KeyWordSearchProps {
   kakaoMap: any;
@@ -37,13 +37,14 @@ export const KeyWordSearch = ({
 }: KeyWordSearchProps) => {
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const userData = useAppSelector((state) => state.user);
-  const searchIinfoData = useAppSelector((state) => state.info.info);
+  const searchInfoData = useAppSelector((state) => state.info.info);
   const dispatch = useAppDispatch();
 
   const [keyword, setKeyword] = useState<string | undefined>('');
   const [infoData, setInfoData] = useState<InfoData[] | []>([]);
   const [clickedSearchList, setClickedSearchList] = useState<boolean>(false);
   const [clickedListData, setClickedListData] = useState<InfoData[] | []>([]);
+  const [markers, setMarkers] = useState<any>(null);
 
   // 검색 결과를 담을 객체
   let searchResults: Record<string, any> = {};
@@ -59,32 +60,37 @@ export const KeyWordSearch = ({
     setMapModal(true);
   };
 
-  const infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-  // 장소 검색 객체를 생성
-  const ps = new kakao.maps.services.Places();
+  // 기존 검색 마커 클리어
+  const clearMarkers = () => {
+    markers.setMap(null);
+    setMarkers(null);
+  };
 
   const displayMarker = (place: InfoData) => {
+    const infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
     const marker = new kakao.maps.Marker({
-      map: kakaoMap,
-      position: new kakao.maps.LatLng(place.y, place.x),
+      position: new kakao.maps.LatLng(place?.y, place?.x),
     });
+    marker.setMap(kakaoMap);
+    setMarkers(marker);
 
-    // 마커에 클릭이벤트를 등록
+    // 마커 에 클릭이벤트를 등록
     kakao.maps.event.addListener(marker, 'click', function () {
       // 마커를 클릭하면 장소명이 인포윈도우에 표출
       infowindow.setContent(
         '<div style="padding:5px;font-size:12px;">' +
-          place.place_name +
+          place?.place_name +
           '</div>'
       );
-      infowindow.open(kakaoMap, marker);
+      if (kakaoMap && marker) {
+        infowindow.open(kakaoMap, marker);
+      }
     });
   };
 
   const placesSearchCB = (data: InfoData[], status: string) => {
     if (status === kakao.maps.services.Status.OK) {
       const bounds = new kakao.maps.LatLngBounds();
-
       if (keyword) {
         // keyword를 검색 결과 키 값으로 사용
         searchResults[keyword] = data;
@@ -95,24 +101,12 @@ export const KeyWordSearch = ({
         dispatch(setInfo(searchResults));
       }
 
-      const searchInfoKey = Object.keys(searchIinfoData);
-      const searchInfoValues = Object.values(searchIinfoData);
-      const values: any = searchInfoValues[0];
+      console.log(data);
 
-      // 현재 keyword와 local에 같은 keyword의 키값이 있으면
-      // kakao api를 콜하지 않고 persist데이터 사용
-      if (keyword === searchInfoKey[0]) {
-        for (let i = 0; i < values.length; i++) {
-          displayMarker(values[i]);
-          bounds.extend(new kakao.maps.LatLng(values[i].y, values[i].x));
-        }
-      } else {
-        for (let i = 0; i < data.length; i++) {
-          displayMarker(data[i]);
-          bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
-        }
+      for (let i = 0; i < data.length; i++) {
+        displayMarker(data[i]);
+        bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
       }
-      // 검색된 장소 위치를 기준으로 지도 범위를 재설정
       kakaoMap.setBounds(bounds);
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
       alert('검색 결과가 존재하지 않습니다.');
@@ -132,7 +126,26 @@ export const KeyWordSearch = ({
         alert('키워드를 입력해주세요!');
         return false;
       }
-      ps.keywordSearch(keyword, placesSearchCB);
+
+      const searchInfoKey = Object.keys(searchInfoData);
+      const searchInfoValues = Object.values(searchInfoData);
+      const values: any = searchInfoValues[0];
+      const bounds = new kakao.maps.LatLngBounds();
+
+      // 검색했을 때 keyword와 local데이터의 키값이 같으면
+      // kakao api를 콜하지 않고 persist데이터 사용
+      if (keyword === searchInfoKey[0]) {
+        for (let i = 0; i < values.length; i++) {
+          displayMarker(values[i]);
+          bounds.extend(new kakao.maps.LatLng(values[i].y, values[i].x));
+          kakaoMap.setBounds(bounds);
+        }
+      } else if (keyword && keyword !== searchInfoKey[0]) {
+        clearMarkers();
+        // 장소 검색 객체를 생성
+        const ps = new kakao.maps.services.Places();
+        ps.keywordSearch(keyword, placesSearchCB);
+      }
     }
   };
 
@@ -281,10 +294,10 @@ export const KeyWordSearch = ({
                 <li
                   key={index}
                   onClick={() => handleListClick(info)}
-                  className="flex items-center gap-1 text-sm pb-2.5 border-b border-gray-200 rounded-md cursor-pointer hover:bg-primary transition-all"
+                  className="flex items-center gap-2 text-sm pb-2.5 border-b border-gray-200 rounded-md cursor-pointer hover:bg-primary transition-all"
                 >
                   <img
-                    className="w-6 h-8"
+                    className="w-5 h-7"
                     src={searchMarker}
                     alt="내 마커 아이콘"
                   />

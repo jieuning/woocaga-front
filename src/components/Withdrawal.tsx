@@ -59,7 +59,7 @@ export const Withdrawal = () => {
         onClick={() => {
           setWithdrawal((open) => !open);
         }}
-        className="absolute left-1/2 bottom-0 -translate-x-1/2 pb-2.5 cursor-pointer text-zinc-400"
+        className="cursor-pointer text-zinc-400"
       >
         회원 탈퇴
       </p>
