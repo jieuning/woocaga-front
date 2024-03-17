@@ -13,6 +13,42 @@
     url('../assets/font/SpoqaHanSansNeo-Bold.woff2') format('woff2');
 }
 
+* {
+  box-sizing: border-box;
+}
+
+#map {
+  width: 100%;
+  height: 580px;
+  border-radius: 10px;
+}
+
+.search-list-position {
+  position: absolute;
+  top: 58px;
+  right: 10px;
+}
+
+@media (max-width: 768px) {
+  #map {
+    height: calc(100vh - 56px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+  }
+
+  .search-height {
+    height: calc(100% - 46px);
+  }
+
+  .search-list-position {
+    top: initial;
+    bottom: 0;
+    left: 0;
+  }
+}
+
 .modal-container {
   position: fixed;
   top: 0;
@@ -57,6 +93,7 @@
 
 /* 스크롤 커스텀 */
 .scrollbar {
+  overflow: hidden;
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: #c1835c transparent;

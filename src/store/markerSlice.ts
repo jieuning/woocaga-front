@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { MarkerData, initialType } from '../types/markers';
-import { produce, Draft } from 'immer';
+import { initialType } from '../types/markers';
 
 const initialState: initialType = {
   markerData: [],

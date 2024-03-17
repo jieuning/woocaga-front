@@ -4,11 +4,13 @@ import myCoffeeMarker from '../assets/my_coffee_marker.png';
 import myDessertMarker from '../assets/my_dessert_marker.png';
 import { IoCloseOutline } from 'react-icons/io5';
 import { IoTrashOutline } from 'react-icons/io5';
+import { MarkerInfo } from '../types/markers';
 // components
 import { Modal, ModalInfo } from './Modals';
 // redux
-import { useAppDispatch, useAppSelector } from '../App';
-import { removeMarker } from '../store/markerSlice';
+import { useAppSelector } from '../App';
+// react query
+import { useMutation, useQueryClient } from 'react-query';
 // axios
 import axios from 'axios';
 
@@ -20,31 +22,28 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const userData = useAppSelector((State) => State.user);
   const markerData = useAppSelector((state) => state.markers.markerData);
-  const dispatch = useAppDispatch();
-
-  console.log(markerData);
+  const queryClient = useQueryClient();
 
   const [myMarkerCategory, setMyMarkerCategory] = useState<string>('커피류');
-  const [deleteAddress, setDeleteAddress] = useState<string | ''>('');
+  const [deleteAddress, setDeleteAddress] = useState<string>('');
   const [markerDeleteModal, setMarkerDeleteModal] = useState<boolean>(false);
 
-  console.log(deleteAddress);
-
-  const handleClickDelete = async () => {
-    try {
-      if (deleteAddress) {
-        const response = await axios.delete(`${URL}/marker_delete`, {
-          data: { address: deleteAddress },
-        });
-
-        if (response.status === 200) {
-          dispatch(removeMarker(deleteAddress));
-        }
-      }
-    } catch (err) {
-      alert('예기치 못한 에러가 발생했습니다.');
+  // 마커 삭제 요청
+  const { mutate } = useMutation(
+    (address: string) =>
+      axios.delete(`${URL}/marker_delete`, {
+        data: { address: address },
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('markerData');
+        alert('해당 마커가 삭제되었습니다.');
+      },
+      onError: () => {
+        alert('예기치 못한 에러가 발생했습니다.');
+      },
     }
-  };
+  );
 
   const myMarkersDeleteModal: ModalInfo = {
     content: '해당 마커를 삭제하시겠습니까?',
@@ -53,7 +52,7 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
       setMarkerDeleteModal((close) => !close);
     },
     ronclick: () => {
-      handleClickDelete();
+      mutate(deleteAddress);
       setMarkerDeleteModal((close) => !close);
     },
   };
@@ -102,14 +101,15 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
                           alt="커피 마커"
                         />
                         <div className="flex justify-between items-center w-full">
-                          <span>{marker.address}</span>
+                          <span className="text-black">{marker.address}</span>
                           <button
                             onClick={() => {
-                              setDeleteAddress(marker.address ?? '');
+                              marker.address &&
+                                setDeleteAddress(marker.address);
                               setMarkerDeleteModal(true);
                             }}
                           >
-                            <IoTrashOutline size={18} />
+                            <IoTrashOutline color="#162220" size={18} />
                           </button>
                         </div>
                       </li>
@@ -140,14 +140,15 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
                           alt="커피 마커"
                         />
                         <div className="flex justify-between items-center w-full">
-                          <span>{marker.address}</span>
+                          <span className="text-black">{marker.address}</span>
                           <button
                             onClick={() => {
-                              setDeleteAddress(marker.address ?? '');
+                              marker.address &&
+                                setDeleteAddress(marker.address);
                               setMarkerDeleteModal(true);
                             }}
                           >
-                            <IoTrashOutline size={18} />
+                            <IoTrashOutline color="#162220" size={18} />
                           </button>
                         </div>
                       </li>

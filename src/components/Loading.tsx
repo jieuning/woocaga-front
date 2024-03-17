@@ -1,13 +1,5 @@
-import BeatLoader from 'react-spinners/BeatLoader';
+import BounceLoader from 'react-spinners/BounceLoader';
 
 export const Loading = () => {
-  return (
-    <BeatLoader
-      color="#52FFA8"
-      size={12}
-      speedMultiplier={2}
-      margin={5}
-      className="mt-9 mb-12"
-    />
-  );
+  return <BounceLoader color="#C1835C" size={80} speedMultiplier={1} />;
 };
