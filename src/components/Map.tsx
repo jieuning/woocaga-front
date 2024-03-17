@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { KakaoCoordinates } from '../types/markers';
+import { KakaoCoordinates, MarkerInfo } from '../types/markers';
 import { kakao } from '../App';
 import axios from 'axios';
 // image
@@ -25,11 +25,10 @@ import { useQuery } from 'react-query';
 
 export const Map = () => {
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
-  const markerData = useAppSelector((state) => state.markers);
   const userData = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
-  const { data, refetch, isFetching } = useQuery(
+  const { data } = useQuery<MarkerInfo[]>(
     'markerData',
     async () => {
       const response = await axios.get(`${URL}/all`);
@@ -40,13 +39,12 @@ export const Map = () => {
       return response.data;
     },
     {
-      enabled: true,
-      refetchOnWindowFocus: false,
+      staleTime: 60 * 1000,
     }
   );
 
   useEffect(() => {
-    // setMarkers에 useQuery로 불러온 마커 데이터 저장
+    // 데이터가 변경될 때마다 setMarkers도 변경
     dispatch(setMarkers(data));
   }, [data]);
 
@@ -54,15 +52,15 @@ export const Map = () => {
   const [clickedPosition, setClickedPosition] =
     useState<KakaoCoordinates | null>(null);
   const [clickedAddress, setClickedAddress] = useState<string | undefined>('');
-  const [kakaoMap, setKakapMap] = useState<any>(null);
+  const [kakaoMap, setKakaoMap] = useState<any>(null);
   const [mapModal, setMapModal] = useState<boolean>(false);
 
   useEffect(() => {
     loadKakaoMap();
-  }, [activeCategory]);
+  }, [activeCategory, data]);
 
   const loadKakaoMap = () => {
-    if (kakao) {
+    if (kakao && data) {
       const container = document.getElementById('map');
       const options = {
         // 건대 입구역 기준
@@ -71,7 +69,7 @@ export const Map = () => {
       };
       const map = new kakao.maps.Map(container, options);
       // Map 객체에 대한 참조 저장
-      setKakapMap(map);
+      setKakaoMap(map);
 
       // 마커 이미지 생성
       const markerImage = markerImageCustom(
@@ -88,8 +86,8 @@ export const Map = () => {
       );
 
       // 카테고리별 데이터
-      const coffeePositions = coffeeCoordinates(markerData);
-      const dessertPositions = dessertCoordinates(markerData);
+      const coffeePositions = coffeeCoordinates(data);
+      const dessertPositions = dessertCoordinates(data);
 
       // 해당 카테고리에 마커 생성
       if (activeCategory !== '디저트') {
@@ -138,28 +136,22 @@ export const Map = () => {
 
   return (
     <>
-      <section className="w-full px-12 absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-1/2 flex flex-col gap-2.5 z-10">
+      <section className="w-full h-full px-12 flex flex-col gap-2.5 mb-4 max-lg:px-4 max-md:px-0 max-md:mb-0">
         <Category
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
-        <div className="flex gap-2.5">
-          <div
-            id="map"
-            className="relative"
-            style={{ width: '100%', height: '520px', borderRadius: '10px' }}
-          >
-            <KeyWordSearch
-              kakaoMap={kakaoMap}
-              activeCategory={activeCategory}
-              clickedPosition={clickedPosition}
-              clickedAddress={clickedAddress}
-              mapModal={mapModal}
-              setMapModal={setMapModal}
-              refetch={refetch}
-              setClickedPosition={() => setClickedPosition(null)}
-            />
-          </div>
+        <div className="relative w-full h-full max-md:block">
+          <KeyWordSearch
+            kakaoMap={kakaoMap}
+            activeCategory={activeCategory}
+            clickedPosition={clickedPosition}
+            clickedAddress={clickedAddress}
+            mapModal={mapModal}
+            setMapModal={setMapModal}
+            setClickedPosition={() => setClickedPosition(null)}
+          />
+          <div id="map"></div>
         </div>
       </section>
     </>

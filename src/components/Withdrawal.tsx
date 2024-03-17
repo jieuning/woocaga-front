@@ -9,7 +9,11 @@ import { deleteToken } from '../store/userSlice';
 import { useMutation } from 'react-query';
 import axios from 'axios';
 
-export const Withdrawal = () => {
+interface withdrawalProps {
+  setUserMenu: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const Withdrawal = ({ setUserMenu }: withdrawalProps) => {
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const userData = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
@@ -26,6 +30,7 @@ export const Withdrawal = () => {
     {
       onSuccess: (data) => {
         if (data.status === 200) {
+          setUserMenu((close) => !close);
           alert('탈퇴가 완료되었습니다.');
           dispatch(deleteToken());
           navigate('/');

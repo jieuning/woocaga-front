@@ -1,12 +1,12 @@
-import { Coordinates, initialType } from '../types/markers';
+import { Coordinates, initialType, MarkerInfo } from '../types/markers';
 
 const getCoordinatesByCategory = (
-  data: initialType,
+  data: MarkerInfo[],
   category: string
 ): Coordinates[] => {
   const coordinates: Coordinates[] = [];
 
-  data?.markerData?.forEach((marker) => {
+  data.forEach((marker) => {
     if (marker.category === category) {
       marker.coordinates?.forEach((coordinate) => {
         coordinates.push({
@@ -24,10 +24,10 @@ const getCoordinatesByCategory = (
   return coordinates;
 };
 
-export const coffeeCoordinates = (data: initialType) => {
+export const coffeeCoordinates = (data: MarkerInfo[]) => {
   return getCoordinatesByCategory(data, '커피류');
 };
 
-export const dessertCoordinates = (data: initialType) => {
+export const dessertCoordinates = (data: MarkerInfo[]) => {
   return getCoordinatesByCategory(data, '디저트');
 };
