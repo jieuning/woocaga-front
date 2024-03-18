@@ -282,8 +282,8 @@ export const KeyWordSearch = ({
           info={!clickedSearchList ? markerModalInfo : listMarkerModalInfo}
         />
       ) : null}
-      <div className="w-[394px] max-lg:w-[250px] max-md:w-full px-2.5 absolute top-2.5 right-[20px] max-md:right-2.5 z-10 max-md:top-[52px]">
-        <label className="flex flex-row gap-1 w-[394px] max-lg:w-[250px] max-md:w-full bg-white/[.9] max-md:bg-white/[.8] rounded-md py-2.5 px-2.5 max-md:mx-2.5 border-solid border box-border border-primary">
+      <div className="w-[394px] max-lg:w-[250px] max-md:w-full px-2.5 absolute top-2.5 right-[20px] max-md:left-1/2 max-md:-translate-x-1/2 z-10 max-md:top-[52px]">
+        <label className="flex flex-row gap-1 w-[394px] max-lg:w-[250px] max-md:w-full bg-white/[.9] max-md:bg-white/[.8] rounded-md py-2.5 px-2.5 border-solid border box-border border-primary">
           <img className="w-4 h-4" src={searchIcon} alt="검색 아이콘" />
           <input
             type="text"
@@ -302,7 +302,7 @@ export const KeyWordSearch = ({
         <IoCloseOutline size={26} color="#fff" />
       </button>
       <div
-        className={`${!mobSearchListActive ? 'max-md:h-0' : 'max-md:h-60 max-md:transition-all'} w-full h-96 search-list-position z-10 bg-white/[.7] rounded-md scrollbar max-md:w-full`}
+        className={`${!mobSearchListActive ? 'max-md:h-0' : 'max-md:h-60 max-md:transition-all'} h-96 search-list-position z-10 bg-white/[.7] rounded-md scrollbar max-md:w-full`}
       >
         <ul className="w-96 max-lg:w-60 h-full flex flex-col gap-2 p-2.5 z-30 max-md:w-full">
           {infoData !== undefined && infoData.length > 0 ? (

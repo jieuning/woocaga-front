@@ -13,9 +13,6 @@ module.exports = {
       fontFamily: {
         spoqa: ['Spoqa Han Sans Neo', 'sans-serif'],
       },
-      backgroundImage: {
-        'intro-bg': "url('./src/assets/intro_bg.png')",
-      },
     },
   },
   plugins: ['prettier-plugin-tailwindcss'],

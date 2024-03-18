@@ -1,4 +1,4 @@
-import { Coordinates, initialType, MarkerInfo } from '../types/markers';
+import { Coordinates, MarkerInfo } from '../types/markers';
 
 const getCoordinatesByCategory = (
   data: MarkerInfo[],

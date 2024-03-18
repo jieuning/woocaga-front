@@ -15,7 +15,7 @@ export const Category = ({
   };
 
   return (
-    <ul className="w-full flex justify-end gap-2.5 pt-2.5 box-border max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2 max-md:justify-center max-md:z-10">
+    <ul className="w-full flex justify-end gap-2.5 pt-6 max-md:pt-2.5 box-border max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2 max-md:justify-center max-md:z-10">
       <li
         className={`${activeCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} rounded-2xl py-2.5 px-5 text-xs text-white flex flex-col items-center justify-center hover:bg-primary transition-all cursor-pointer max-md:flex-row max-md:gap-1.5 max-md:px-2.5 max-md:py-2 max-md:rounded-3xl`}
         onClick={() => handleCategoryClick('커피류')}

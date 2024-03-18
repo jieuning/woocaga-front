@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 // image
 import myCoffeeMarker from '../assets/my_coffee_marker.png';
 import myDessertMarker from '../assets/my_dessert_marker.png';
 import { IoCloseOutline } from 'react-icons/io5';
 import { IoTrashOutline } from 'react-icons/io5';
-import { MarkerInfo } from '../types/markers';
 // components
 import { Modal, ModalInfo } from './Modals';
+import { Loading } from './Loading';
 // redux
 import { useAppSelector } from '../App';
 // react query
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient, useInfiniteQuery } from 'react-query';
 // axios
 import axios from 'axios';
+import { MarkerInfo } from '../types/markers';
 
 interface MyMarkersProps {
   setOpenMyMarkers: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,6 +29,58 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
   const [myMarkerCategory, setMyMarkerCategory] = useState<string>('커피류');
   const [deleteAddress, setDeleteAddress] = useState<string>('');
   const [markerDeleteModal, setMarkerDeleteModal] = useState<boolean>(false);
+  const pageSize = 10;
+
+  const pageFetcher = async (page: number) => {
+    const response = await axios.get(`${URL}/pagination`, {
+      params: {
+        page: page,
+        pageSize: pageSize,
+        user: userData.email,
+        category: myMarkerCategory,
+      },
+    });
+    return response.data;
+  };
+
+  // 무한 스크롤
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+    error,
+    refetch,
+  } = useInfiniteQuery(
+    'myMarkers',
+    ({ pageParam = 1 }) => pageFetcher(pageParam),
+    {
+      getNextPageParam: (lastPage) => {
+        console.log(lastPage);
+        if (lastPage.lastPage) {
+          return undefined;
+        }
+        return lastPage.page + 1;
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    refetch();
+  }, [myMarkerCategory]);
+
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [inView]);
+
+  // 데이터 합치기
+  const datas = data?.pages.flatMap((page) => page.markers);
 
   // 마커 삭제 요청
   const { mutate } = useMutation(
@@ -61,8 +115,8 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
     <>
       {markerDeleteModal && <Modal info={myMarkersDeleteModal} />}
       <section className="absolute top-0 left-0 w-full h-screen bg-black/[.6] z-40">
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 px-4 bg-white rounded-md scrollbar">
-          <div className="sticky top-0 flex gap-2 justify-center pt-4 pb-6 bg-white">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 px-4 bg-white rounded-md">
+          <div className="flex gap-2 justify-center pt-4 pb-6 bg-white">
             <button
               onClick={() => setMyMarkerCategory('커피류')}
               className={`${myMarkerCategory === '커피류' ? 'bg-primary' : 'bg-lightbrown'} hover:bg-primary text-white text-sm rounded-3xl px-2.5 py-1 transition-all`}
@@ -76,86 +130,50 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
               디저트
             </button>
           </div>
-          <ul className="flex flex-col gap-2.5">
-            {myMarkerCategory === '커피류' &&
-              (markerData?.filter(
-                (marker) =>
-                  marker.useremail === userData.email &&
-                  marker.category === '커피류'
-              ).length === 0 ? (
-                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
-                  마커 내역이 없습니다
-                </p>
-              ) : (
-                markerData?.map(
-                  (marker) =>
-                    marker.useremail === userData.email &&
-                    marker.category === '커피류' && (
-                      <li
-                        key={marker.address}
-                        className="flex items-center gap-2.5 border-b border-gray-200 pb-2.5 text-sm"
-                      >
-                        <img
-                          className="w-6"
-                          src={myCoffeeMarker}
-                          alt="커피 마커"
-                        />
-                        <div className="flex justify-between items-center w-full">
-                          <span className="text-black">{marker.address}</span>
-                          <button
-                            onClick={() => {
-                              marker.address &&
-                                setDeleteAddress(marker.address);
-                              setMarkerDeleteModal(true);
-                            }}
-                          >
-                            <IoTrashOutline color="#162220" size={18} />
-                          </button>
-                        </div>
-                      </li>
-                    )
-                )
-              ))}
-            {myMarkerCategory === '디저트' &&
-              (markerData?.filter(
-                (marker) =>
-                  marker.useremail === userData.email &&
-                  marker.category === '디저트'
-              ).length === 0 ? (
-                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
-                  마커 내역이 없습니다
-                </p>
-              ) : (
-                markerData?.map(
-                  (marker) =>
-                    marker.useremail === userData.email &&
-                    marker.category === '디저트' && (
-                      <li
-                        key={marker.address}
-                        className="flex items-center gap-2.5 border-b border-gray-200 pb-2.5 text-sm"
-                      >
-                        <img
-                          className="w-6"
-                          src={myDessertMarker}
-                          alt="커피 마커"
-                        />
-                        <div className="flex justify-between items-center w-full">
-                          <span className="text-black">{marker.address}</span>
-                          <button
-                            onClick={() => {
-                              marker.address &&
-                                setDeleteAddress(marker.address);
-                              setMarkerDeleteModal(true);
-                            }}
-                          >
-                            <IoTrashOutline color="#162220" size={18} />
-                          </button>
-                        </div>
-                      </li>
-                    )
-                )
-              ))}
-          </ul>
+          {isFetching ? (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Loading />
+            </div>
+          ) : (
+            <div className="my-height scrollbar">
+              <ul className="flex flex-col gap-2.5">
+                {datas && datas.length !== 0 ? (
+                  datas.map((marker: MarkerInfo) => (
+                    <li
+                      key={marker.address}
+                      className="flex items-center gap-2.5 border-b border-gray-200 pb-2.5 text-sm"
+                    >
+                      <img
+                        className="w-6"
+                        src={
+                          marker.category !== '디저트'
+                            ? myCoffeeMarker
+                            : myDessertMarker
+                        }
+                        alt="커피 마커"
+                      />
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-black">{marker.address}</span>
+                        <button
+                          onClick={() => {
+                            marker.address && setDeleteAddress(marker.address);
+                            setMarkerDeleteModal(true);
+                          }}
+                        >
+                          <IoTrashOutline color="#162220" size={18} />
+                        </button>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
+                    마커 내역이 없습니다
+                  </p>
+                )}
+                <div ref={ref}></div>
+              </ul>
+            </div>
+          )}
         </div>
         <button
           onClick={() => setOpenMyMarkers((close) => !close)}
