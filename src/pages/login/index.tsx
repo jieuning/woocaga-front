@@ -22,7 +22,7 @@ const Login = () => {
   });
   const [errors, setErrors] = useState<string[]>([]);
 
-  const userMutation = useMutation(
+  const { mutate } = useMutation(
     (user: formDataType) => axios.post(`${URL}/login`, user),
     {
       onSuccess: (data) => {
@@ -84,36 +84,41 @@ const Login = () => {
     }
 
     // 에러가 없고 isError가 flase일 때
-    if (errors.length === 0 && !userMutation.isError) {
+    if (errors.length === 0) {
       const user = {
         email: formData.email,
         password: formData.password,
       };
 
-      userMutation.mutate(user);
+      mutate(user);
     }
   };
 
   return (
-    <section className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <section className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-md:w-full max-md:px-2.5">
       <div className="flex items-center flex-col gap-12">
-        <h2 className="text-2xl text-brown font-bold">로그인</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <h2 className="text-2xl max-md:text-xl text-brown font-semibold">
+          로그인
+        </h2>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-5 max-md:w-full"
+        >
           <input
             type="text"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-96 rounded-lg p-3 outline-primary text-sm tracking-tighter"
-            placeholder="이메일을 입력해주세요"
+            className="w-96 max-md:w-full rounded-lg p-3 outline-primary text-sm tracking-tighter"
+            placeholder="이메일 입력"
           />
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-96 rounded-lg p-3 outline-primary text-sm tracking-tighter"
-            placeholder="비밀번호를 입력해주세요"
+            className="w-96 max-md:w-full rounded-lg p-3 outline-primary text-sm tracking-tighter"
+            placeholder="비밀번호 입력"
           />
           {errors.length > 0 && (
             <div className="text-red-500">
@@ -126,7 +131,7 @@ const Login = () => {
           )}
           <button
             type="submit"
-            className={`${formData.email && formData.password ? 'disabled-button' : 'share-button'} w-96 p-3`}
+            className={`${formData.email && formData.password ? 'disabled-button' : 'share-button'} w-96 p-3 bg-lightbrown max-md:w-full max-md:font-semibold`}
           >
             로그인하기
           </button>

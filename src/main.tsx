@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <App />
-        {/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
+        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
       </PersistGate>
     </Provider>
   </QueryClientProvider>

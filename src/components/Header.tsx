@@ -18,10 +18,10 @@ export const Header = () => {
           src={logo}
           alt="로고"
         />
-        <div className="text-white text-sm font-semibold">
+        <div className="text-white text-sm">
           {userData.token === '' ? (
             <span
-              className=" cursor-pointer"
+              className="font-semibold cursor-pointer"
               onClick={() => navigate('/login')}
             >
               로그인

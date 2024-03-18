@@ -1,5 +1,5 @@
-import BounceLoader from 'react-spinners/BounceLoader';
+import MoonLoader from 'react-spinners/MoonLoader';
 
 export const Loading = () => {
-  return <BounceLoader color="#C1835C" size={80} speedMultiplier={1} />;
+  return <MoonLoader color="#ccc" size={36} speedMultiplier={2} />;
 };

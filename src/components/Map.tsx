@@ -136,12 +136,12 @@ export const Map = () => {
 
   return (
     <>
-      <section className="w-full h-full px-12 flex flex-col gap-2.5 mb-4 max-lg:px-4 max-md:px-0 max-md:mb-0">
+      <section className="w-full h-full px-12 flex flex-col gap-2.5 mb-4 max-lg:px-2 max-md:px-0 max-md:mb-0">
         <Category
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
-        <div className="relative w-full h-full max-md:block">
+        <div className="relative w-full h-full">
           <KeyWordSearch
             kakaoMap={kakaoMap}
             activeCategory={activeCategory}
