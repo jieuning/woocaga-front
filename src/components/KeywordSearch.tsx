@@ -52,8 +52,6 @@ export const KeyWordSearch = ({
   const [clickedListData, setClickedListData] = useState<InfoData[] | []>([]);
   const markersRef = useRef<any[]>([]);
 
-  console.log(mobSearchListActive);
-
   const handleChange = (event: any) => {
     setKeyword(event.target.value);
   };

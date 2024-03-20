@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 // image
 import myCoffeeMarker from '../assets/my_coffee_marker.png';
@@ -8,6 +8,7 @@ import { IoTrashOutline } from 'react-icons/io5';
 // components
 import { Modal, ModalInfo } from './Modals';
 import { Loading } from './Loading';
+import { MarkerList } from './MarkerList';
 // redux
 import { useAppSelector } from '../App';
 // react query
@@ -23,7 +24,6 @@ interface MyMarkersProps {
 export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
   const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
   const userData = useAppSelector((State) => State.user);
-  const markerData = useAppSelector((state) => state.markers.markerData);
   const queryClient = useQueryClient();
 
   const [myMarkerCategory, setMyMarkerCategory] = useState<string>('커피류');
@@ -44,15 +44,7 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
   };
 
   // 무한 스크롤
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetching,
-    error,
-    refetch,
-  } = useInfiniteQuery(
+  const { data, fetchNextPage, isFetching, refetch } = useInfiniteQuery(
     'myMarkers',
     ({ pageParam = 1 }) => pageFetcher(pageParam),
     {
@@ -67,20 +59,71 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
     }
   );
 
-  const { ref, inView } = useInView();
+  console.log(fetchNextPage);
+
+  // 데이터 합치기
+  const datas: MarkerInfo[] | undefined = data?.pages.flatMap(
+    (page) => page.markers
+  );
+
+  console.log(datas);
+
+  // const coffeeRef = useRef<HTMLDivElement>(null);
+  // const dessertRef = useRef<HTMLDivElement>(null);
+
+  // // 스크롤 감지
+  // const { inView: coffeeInView } = useInView({ ref: coffeeRef });
+  // const { inView: dessertInView } = useInView({ ref: dessertRef });
+
+  // useEffect(() => {
+  //   if (coffeeInView) {
+  //     fetchNextPage();
+  //   }
+  // }, [coffeeInView]);
+
+  // useEffect(() => {
+  //   if (dessertInView) {
+  //     fetchNextPage();
+  //   }
+  // }, [dessertInView]);
+
+  const coffeeRef = useRef<HTMLDivElement>(null);
+  const dessertRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // 감지되었을 때 실행할 로직을 여기에 추가합니다.
+          console.log('Intersection detected:', entry.target);
+          // 예를 들어 fetchNextPage()를 호출할 수 있습니다.
+          fetchNextPage();
+        }
+      });
+    }, options);
+
+    if (coffeeRef.current) {
+      observer.observe(coffeeRef.current);
+    }
+
+    if (dessertRef.current) {
+      observer.observe(dessertRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     refetch();
   }, [myMarkerCategory]);
-
-  useEffect(() => {
-    if (inView) {
-      fetchNextPage();
-    }
-  }, [inView]);
-
-  // 데이터 합치기
-  const datas = data?.pages.flatMap((page) => page.markers);
 
   // 마커 삭제 요청
   const { mutate } = useMutation(
@@ -137,40 +180,29 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
           ) : (
             <div className="my-height scrollbar">
               <ul className="flex flex-col gap-2.5">
-                {datas && datas.length !== 0 ? (
-                  datas.map((marker: MarkerInfo) => (
-                    <li
-                      key={marker.address}
-                      className="flex items-center gap-2.5 border-b border-gray-200 pb-2.5 text-sm"
-                    >
-                      <img
-                        className="w-6"
-                        src={
-                          marker.category !== '디저트'
-                            ? myCoffeeMarker
-                            : myDessertMarker
-                        }
-                        alt="커피 마커"
+                {myMarkerCategory !== '디저트' && coffeeRef ? (
+                  <>
+                    <div className="text-black" ref={coffeeRef}>
+                      <MarkerList
+                        datas={datas}
+                        setDeleteAddress={setDeleteAddress}
+                        setMarkerDeleteModal={setMarkerDeleteModal}
+                        myMarkerImage={myCoffeeMarker}
                       />
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-black">{marker.address}</span>
-                        <button
-                          onClick={() => {
-                            marker.address && setDeleteAddress(marker.address);
-                            setMarkerDeleteModal(true);
-                          }}
-                        >
-                          <IoTrashOutline color="#162220" size={18} />
-                        </button>
-                      </div>
-                    </li>
-                  ))
+                    </div>
+                  </>
                 ) : (
-                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
-                    마커 내역이 없습니다
-                  </p>
+                  <>
+                    <div className="text-black" ref={dessertRef}>
+                      <MarkerList
+                        datas={datas}
+                        setDeleteAddress={setDeleteAddress}
+                        setMarkerDeleteModal={setMarkerDeleteModal}
+                        myMarkerImage={myDessertMarker}
+                      />
+                    </div>
+                  </>
                 )}
-                <div ref={ref}></div>
               </ul>
             </div>
           )}

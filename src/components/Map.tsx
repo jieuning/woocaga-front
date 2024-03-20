@@ -40,6 +40,7 @@ export const Map = () => {
     },
     {
       staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
     }
   );
 
