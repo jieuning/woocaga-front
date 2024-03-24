@@ -36,8 +36,7 @@ export const Withdrawal = ({ setUserMenu }: withdrawalProps) => {
           navigate('/');
         }
       },
-      onError: (error) => {
-        console.log(error);
+      onError: () => {
         alert('에러가 발생했습니다. 다시 시도해주세요.');
       },
     }
