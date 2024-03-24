@@ -15,7 +15,6 @@ export const generateMarkerData = ({
   clickedAddress,
   clickedPosition,
   activeCategory,
-  clickedSearchList,
 }: generateMarkerDataProps) => {
   const mapClicedData: MarkerInfo = {
     useremail: userData?.email,

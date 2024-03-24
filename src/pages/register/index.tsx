@@ -16,7 +16,7 @@ interface newUserType {
 }
 
 const Register = () => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/register`;
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<formDataType>({
@@ -27,7 +27,7 @@ const Register = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   const { mutate } = useMutation(
-    (newUser: newUserType) => axios.post(`${URL}/register`, newUser),
+    (newUser: newUserType) => axios.post(URL, newUser),
     {
       onSuccess: (data) => {
         alert(`${data.data.email}님 가입이 완료되었습니다. 환영합니다!!🎉`);

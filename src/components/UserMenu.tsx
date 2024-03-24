@@ -12,7 +12,7 @@ import { deleteToken } from '../store/userSlice';
 import { setUserToken } from '../store/userSlice';
 
 export const UserMenu = () => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/refresh`;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const userData = useAppSelector((state) => state.user);
@@ -27,7 +27,7 @@ export const UserMenu = () => {
     try {
       // 서버에 새로운 토큰 요청
       const response = await axios.post(
-        `${URL}/refresh`,
+        URL,
         {},
         {
           headers: { Authorization: `Bearer ${userData.token}` },

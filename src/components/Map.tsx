@@ -24,14 +24,14 @@ import { setMarkers } from '../store/markerSlice';
 import { useQuery } from 'react-query';
 
 export const Map = () => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/all`;
   const userData = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
   const { data } = useQuery<MarkerInfo[]>(
     'markerData',
     async () => {
-      const response = await axios.get(`${URL}/all`);
+      const response = await axios.get(URL);
 
       if (response.status === 404) {
         throw new Error('에러가 발생했습니다.');
