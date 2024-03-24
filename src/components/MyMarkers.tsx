@@ -137,6 +137,10 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
                 <Loading />
               ) : isError ? (
                 <div>에러가 발생했습니다</div>
+              ) : data?.pages.every((page) => !page.markers.length) ? (
+                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
+                  마커 내역이 없습니다
+                </p>
               ) : (
                 data?.pages.map((page, i) => (
                   <React.Fragment key={i}>
@@ -172,13 +176,13 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
             </ul>
             {isFetchingNextPage && <Loading />}
           </div>
+          <button
+            onClick={() => setOpenMyMarkers((close) => !close)}
+            className="absolute bottom-[-16%] left-1/2 -translate-x-1/2 w-11 h-11 bg-lightbrown hover:bg-primary transition-all rounded-full flex items-center justify-center"
+          >
+            <IoCloseOutline size={26} color="#fff" />
+          </button>
         </div>
-        <button
-          onClick={() => setOpenMyMarkers((close) => !close)}
-          className="absolute top-[76%] left-1/2 -translate-x-1/2 w-11 h-11 bg-lightbrown hover:bg-primary transition-all rounded-full flex items-center justify-center"
-        >
-          <IoCloseOutline size={26} color="#fff" />
-        </button>
       </section>
     </>
   );
