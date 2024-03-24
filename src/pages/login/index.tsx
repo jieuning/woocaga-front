@@ -12,7 +12,7 @@ interface formDataType {
 }
 
 const Login = () => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/login`;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const Login = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   const { mutate } = useMutation(
-    (user: formDataType) => axios.post(`${URL}/login`, user),
+    (user: formDataType) => axios.post(URL, user),
     {
       onSuccess: (data) => {
         dispatch(setUserToken(data.data.token));

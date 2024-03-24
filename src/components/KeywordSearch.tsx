@@ -35,7 +35,7 @@ export const KeyWordSearch = ({
   mapModal,
   setMapModal,
 }: KeyWordSearchProps) => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/add`;
   const userData = useAppSelector((state) => state.user);
   const searchInfoData = useAppSelector((state) => state.info.info);
   const dispatch = useAppDispatch();
@@ -153,7 +153,7 @@ export const KeyWordSearch = ({
   // 마커 추가
   const { mutate } = useMutation(
     (marker: MarkerInfo) =>
-      axios.post(`${URL}/add`, JSON.stringify(marker), {
+      axios.post(URL, JSON.stringify(marker), {
         headers: {
           'Content-Type': 'application/json',
         },

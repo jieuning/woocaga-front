@@ -14,7 +14,7 @@ interface withdrawalProps {
 }
 
 export const Withdrawal = ({ setUserMenu }: withdrawalProps) => {
-  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}`;
+  const URL = `${import.meta.env.VITE_WOOCAGA_API_URL}/delete`;
   const userData = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export const Withdrawal = ({ setUserMenu }: withdrawalProps) => {
   // 회원 탈퇴 요청
   const deleteMutation = useMutation(
     (userData: UserDataType) =>
-      axios.delete(`${URL}/delete`, {
+      axios.delete(URL, {
         headers: { Authorization: `Bearer ${userData.token}` },
       }),
     {
