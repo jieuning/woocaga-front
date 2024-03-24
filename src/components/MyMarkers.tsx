@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React, { useCallback, useRef, useState } from 'react';
 // image
 import myCoffeeMarker from '../assets/my_coffee_marker.png';
 import myDessertMarker from '../assets/my_dessert_marker.png';
 import { IoCloseOutline } from 'react-icons/io5';
-import { IoTrashOutline } from 'react-icons/io5';
 // components
 import { Modal, ModalInfo } from './Modals';
 import { Loading } from './Loading';
@@ -30,6 +28,7 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
   const [deleteAddress, setDeleteAddress] = useState<string>('');
   const [markerDeleteModal, setMarkerDeleteModal] = useState<boolean>(false);
   const pageSize = 10;
+  const observer = useRef<IntersectionObserver | null>(null);
 
   const pageFetcher = async (page: number) => {
     const response = await axios.get(`${URL}/pagination`, {
@@ -43,87 +42,45 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
     return response.data;
   };
 
-  // 무한 스크롤
-  const { data, fetchNextPage, isFetching, refetch } = useInfiniteQuery(
-    'myMarkers',
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery(
+    ['myMarkers', myMarkerCategory],
     ({ pageParam = 1 }) => pageFetcher(pageParam),
     {
       getNextPageParam: (lastPage) => {
-        console.log(lastPage);
-        if (lastPage.lastPage) {
-          return undefined;
+        if (lastPage.page < lastPage.totalPages) {
+          return lastPage.page + 1;
         }
-        return lastPage.page + 1;
+        return undefined;
       },
-      refetchOnWindowFocus: false,
+      staleTime: 3 * 60 * 1000,
     }
   );
 
-  console.log(fetchNextPage);
+  const lastMarkerRef = useCallback(
+    (node: any) => {
+      if (isFetchingNextPage || !hasNextPage || !node) return;
 
-  // 데이터 합치기
-  const datas: MarkerInfo[] | undefined = data?.pages.flatMap(
-    (page) => page.markers
-  );
+      if (observer.current) {
+        observer.current.disconnect();
+      }
 
-  console.log(datas);
-
-  // const coffeeRef = useRef<HTMLDivElement>(null);
-  // const dessertRef = useRef<HTMLDivElement>(null);
-
-  // // 스크롤 감지
-  // const { inView: coffeeInView } = useInView({ ref: coffeeRef });
-  // const { inView: dessertInView } = useInView({ ref: dessertRef });
-
-  // useEffect(() => {
-  //   if (coffeeInView) {
-  //     fetchNextPage();
-  //   }
-  // }, [coffeeInView]);
-
-  // useEffect(() => {
-  //   if (dessertInView) {
-  //     fetchNextPage();
-  //   }
-  // }, [dessertInView]);
-
-  const coffeeRef = useRef<HTMLDivElement>(null);
-  const dessertRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const options = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // 감지되었을 때 실행할 로직을 여기에 추가합니다.
-          console.log('Intersection detected:', entry.target);
-          // 예를 들어 fetchNextPage()를 호출할 수 있습니다.
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
           fetchNextPage();
         }
       });
-    }, options);
 
-    if (coffeeRef.current) {
-      observer.observe(coffeeRef.current);
-    }
-
-    if (dessertRef.current) {
-      observer.observe(dessertRef.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    refetch();
-  }, [myMarkerCategory]);
+      observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
 
   // 마커 삭제 요청
   const { mutate } = useMutation(
@@ -134,6 +91,7 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('markerData');
+        queryClient.invalidateQueries(['myMarkers', myMarkerCategory]);
         alert('해당 마커가 삭제되었습니다.');
       },
       onError: () => {
@@ -173,39 +131,47 @@ export const MyMarkers = ({ setOpenMyMarkers }: MyMarkersProps) => {
               디저트
             </button>
           </div>
-          {isFetching ? (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Loading />
-            </div>
-          ) : (
-            <div className="my-height scrollbar">
-              <ul className="flex flex-col gap-2.5">
-                {myMarkerCategory !== '디저트' && coffeeRef ? (
-                  <>
-                    <div className="text-black" ref={coffeeRef}>
-                      <MarkerList
-                        datas={datas}
-                        setDeleteAddress={setDeleteAddress}
-                        setMarkerDeleteModal={setMarkerDeleteModal}
-                        myMarkerImage={myCoffeeMarker}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-black" ref={dessertRef}>
-                      <MarkerList
-                        datas={datas}
-                        setDeleteAddress={setDeleteAddress}
-                        setMarkerDeleteModal={setMarkerDeleteModal}
-                        myMarkerImage={myDessertMarker}
-                      />
-                    </div>
-                  </>
-                )}
-              </ul>
-            </div>
-          )}
+          <div className="my-height scrollbar">
+            <ul className="flex flex-col gap-2.5 pr-2.5">
+              {isLoading ? (
+                <Loading />
+              ) : isError ? (
+                <div>에러가 발생했습니다</div>
+              ) : (
+                data?.pages.map((page, i) => (
+                  <React.Fragment key={i}>
+                    {page.markers.map((marker: MarkerInfo, index: number) => {
+                      const isLastMarker =
+                        index === page.markers.length - 1 &&
+                        data.pages.length - 1 === i;
+                      return (
+                        <React.Fragment key={marker.address}>
+                          {myMarkerCategory === '커피류' && (
+                            <MarkerList
+                              setDeleteAddress={setDeleteAddress}
+                              setMarkerDeleteModal={setMarkerDeleteModal}
+                              myMarkerImage={myCoffeeMarker}
+                              marker={marker}
+                            />
+                          )}
+                          {myMarkerCategory === '디저트' && (
+                            <MarkerList
+                              setDeleteAddress={setDeleteAddress}
+                              setMarkerDeleteModal={setMarkerDeleteModal}
+                              myMarkerImage={myDessertMarker}
+                              marker={marker}
+                            />
+                          )}
+                          {isLastMarker && <div ref={lastMarkerRef} />}
+                        </React.Fragment>
+                      );
+                    })}
+                  </React.Fragment>
+                ))
+              )}
+            </ul>
+            {isFetchingNextPage && <Loading />}
+          </div>
         </div>
         <button
           onClick={() => setOpenMyMarkers((close) => !close)}
