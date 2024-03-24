@@ -3,11 +3,119 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'spoqa';
-    src: url('../assets/font/SpoqaHanSansNeo-Regular.woff') format('woff2'),
-         url('../assets/font/SpoqaHanSansNeo-Regular.woff2') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Medium.woff') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Medium.woff2') format('woff2'),
-         url('../assets/font/SpoqaHanSansNeo-Bold.woff') format('woff'),
-         url('../assets/font/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
+  font-family: 'spoqa';
+  src:
+    url('../assets/font/SpoqaHanSansNeo-Regular.woff') format('woff2'),
+    url('../assets/font/SpoqaHanSansNeo-Regular.woff2') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Medium.woff') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Medium.woff2') format('woff2'),
+    url('../assets/font/SpoqaHanSansNeo-Bold.woff') format('woff'),
+    url('../assets/font/SpoqaHanSansNeo-Bold.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#map {
+  width: 100%;
+  height: calc(100% - 10px);
+  border-radius: 10px;
+}
+
+.search-list-position {
+  position: absolute;
+  top: 58px;
+  right: 10px;
+}
+
+.intro-height {
+  height: calc(100vh - 56px);
+}
+
+.my-height {
+  height: calc(100% - 80px);
+}
+
+@media (max-width: 768px) {
+  #map {
+    height: calc(100vh - 41px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+  }
+
+  .search-height {
+    height: calc(100% - 46px);
+  }
+
+  .search-list-position {
+    top: initial;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.modal-button {
+  width: 100%;
+  height: 46px;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.modal-button:hover {
+  background-color: #c1835c;
+}
+
+.share-button {
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.disabled-button {
+  border-radius: 8px;
+  background-color: #c1835c;
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.share-button:hover {
+  background-color: #c1835c;
+}
+
+/* 스크롤 커스텀 */
+.scrollbar {
+  overflow: hidden;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: #c1835c transparent;
+}
+
+/* 크롬, 사파리 */
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c1835c;
+  border-radius: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
 }
