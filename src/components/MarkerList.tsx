@@ -16,7 +16,7 @@ export const MarkerList = ({
 }: MakerListProps) => {
   return (
     <>
-      {marker ? (
+      {marker && (
         <li className="flex items-center gap-2.5 border-b border-gray-200 pb-2.5 text-sm">
           <img className="w-6" src={myMarkerImage} alt="커피 마커" />
           <div className="flex justify-between items-center w-full">
@@ -31,10 +31,6 @@ export const MarkerList = ({
             </button>
           </div>
         </li>
-      ) : (
-        <p className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full break-keep text-center text-brown">
-          마커 내역이 없습니다
-        </p>
       )}
     </>
   );
