@@ -72,7 +72,7 @@
 프로젝트를 사용하기에 앞서 `git`과 `npm`이 설치되어 있어야 합니다.
 #### 클론
 ```
-git clone https://kdt-gitlab.elice.io/sw_track/class_07/web_project_2/team4/frontend/sante.git
+git clone https://github.com/jieuning/woocaga-front.git
 ```
 #### 패키지 설치
 ```
