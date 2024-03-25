@@ -44,7 +44,7 @@ export const Map = () => {
   );
 
   useEffect(() => {
-    // 데이터가 변경될 때마다 setMarkers도 변경
+    // data가 변경될 때마다 setMarkers 변경
     dispatch(setMarkers(data));
   }, [data]);
 
