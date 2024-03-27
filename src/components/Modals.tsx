@@ -14,7 +14,7 @@ export const Modal = ({ info }: ModalProps) => {
 
   return (
     <section className="font-['spoqa'] modal-container w-full h-screen z-50 bg-black bg-opacity-60">
-      <div className="relative modal-container w-80 h-40 z-20 box-border bg-white rounded-md flex items-center justify-end flex-col p-2.5">
+      <div className="relative modal-container w-80 h-40 z-20 box-border bg-white rounded-md flex items-center justify-end flex-col p-2.5 modal-width">
         <h3 className="absolute top-1/3 -translate-y-1/2 text-center text-black break-keep whitespace-pre-line">
           {content}
         </h3>
